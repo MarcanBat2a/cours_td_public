@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block titre %}{{ c.titre }} - Ondine{% endblock %}
+{% block contenu %}
+<article class="fiche">
+  <header>
+    <span class="type type-{{ c.type }}">{{ c.type }}</span>
+    <h1>{{ c.titre }}</h1>
+    <p class="sous">{{ c.artiste }} · {{ c.duree_s|duree }} · sorti le {{ c.date_sortie }}
+      · {{ c.genres|join(', ') if c.genres else 'genres inconnus' }}
+      {% if c.import_source %}<span class="badge">importé ({{ c.import_source }})</span>{% endif %}</p>
+    <p class="chrono">page composée en {{ '%.1f'|format(chrono.page) }} ms{% if chrono.du_cache %} <b>(servie du cache)</b>{% endif %}
+      {% if cache.actif %}· cache : {{ cache.succes }} succès / {{ cache.echecs }} échecs{% endif %}
+      {% if c.colonnes_vides is defined %}· <b>{{ c.colonnes_vides }} colonnes à NULL</b> sur 61{% endif %}</p>
+  </header>
+
+  <section class="actions">
+    <form method="post" action="/contenu/{{ c.id }}/ecouter">
+      <select name="plateforme"><option>web</option><option>ios</option><option>android</option></select>
+      <button class="principal">▶ Écouter</button>
+    </form>
+    <span class="nb-ecoutes">{{ nb_ecoutes }} écoutes</span>
+  </section>
+
+  <section class="details">
+    <h2>Détails</h2>
+    <dl>
+    {% for k, v in c.details.items() if k not in ('pistes', 'setlist') %}
+      <dt>{{ k }}</dt><dd>{{ v if v is not none else '-' }}</dd>
+    {% endfor %}
+    </dl>
+    {% if c.details.pistes %}
+      <h3>Pistes</h3>
+      <ol class="pistes">{% for p in c.details.pistes %}<li>{{ p.titre }} <span>{{ p.duree_s|duree }}</span></li>{% endfor %}</ol>
+    {% endif %}
+    {% if c.details.setlist %}
+      <h3>Setlist</h3>
+      <ol class="pistes">{% for t in c.details.setlist %}<li>{{ t }}</li>{% endfor %}</ol>
+    {% endif %}
+  </section>
+
+  <section class="reco">
+    <h2>Les auditeurs ont aussi écouté <small>{{ '%.1f'|format(chrono.reco) }} ms</small></h2>
+    {% if reco %}
+    <ul>{% for cid, fans in reco %}
+      <li><a href="/contenu/{{ cid }}">{{ titres[cid].titre if cid in titres else cid }}</a> <span class="nb">{{ fans }}</span></li>
+    {% endfor %}</ul>
+    {% else %}<p class="vide">Rien à recommander.</p>{% endif %}
+  </section>
+
+  <section class="avis">
+    <h2>Avis <small>{{ avis|length }}</small></h2>
+    {% if moi %}
+    <form method="post" action="/contenu/{{ c.id }}/avis" class="nouvel-avis">
+      <select name="note">{% for n in [5,4,3,2,1] %}<option value="{{ n }}">{{ n }} ★</option>{% endfor %}</select>
+      <input name="texte" placeholder="votre avis" maxlength="200">
+      <button>Publier</button>
+    </form>
+    {% endif %}
+    <ul>{% for a in avis %}
+      <li><b>{{ a.pseudo }}</b> <span class="note">{{ '★' * a.note }}</span> {{ a.texte }}
+        <span class="quand">{{ a.date_txt }}</span></li>
+    {% endfor %}</ul>
+  </section>
+</article>
+{% endblock %}
