@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titre %}Ondine{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="entete">
+  <a class="logo" href="/">Ondine</a>
+  <nav>
+    <a href="/catalogue">Catalogue</a>
+    <a href="/moi">Moi</a>
+    <a href="/etat" class="etat">État</a>
+  </nav>
+  <div class="qui">
+    {% if moi %}
+      <span>{{ moi.pseudo }}</span>
+      <form method="post" action="/deconnexion"><button class="lien">quitter</button></form>
+    {% else %}
+      <a href="/connexion">Se connecter</a>
+    {% endif %}
+  </div>
+</header>
+<main>
+{% block contenu %}{% endblock %}
+</main>
+<footer class="pied">
+  <span>Ondine vit le {{ horloge.strftime('%d/%m/%Y %H:%M:%S') }}</span>
+  <span class="roles">
+    {% for r, v in roles.items() %}<b>{{ r|lower }}</b>&nbsp;{{ v }}{% if not loop.last %} · {% endif %}{% endfor %}
+  </span>
+</footer>
+</body>
+</html>
