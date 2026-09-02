@@ -1,0 +1,177 @@
+# Ondine - le site et toutes ses bases, un chapitre à la fois.
+#
+#   docker compose up -d                          # le site + PostgreSQL (chapitre 1)
+#   docker compose --profile mongo up -d          # + MongoDB (chapitre 2)
+#   docker compose --profile redis up -d          # + Redis (chapitre 3)
+#   docker compose --profile graphe up -d         # + Neo4j (chapitre 4)
+#   docker compose --profile colonne up -d        # + un nœud Cassandra (chapitre 4)
+#
+# Les profils s'additionnent : --profile mongo --profile redis démarre les deux.
+# Ce qui a déjà démarré reste debout. Pour tout arrêter : docker compose --profile '*' down
+#
+# Les clusters de TD se lèvent par les scripts du dossier cluster/ - JAMAIS
+# à la main, l'ordre de démarrage compte :
+#
+#   bash cluster/replica-set.sh      # trois MongoDB (chapitre 1)
+#   bash cluster/anneau.sh           # trois Cassandra (chapitre 4)
+#   bash cluster/shards.sh           # un cluster MongoDB shardé (chapitre 5)
+#
+# Le site : http://localhost:8000 - Neo4j dessine son graphe sur
+# http://localhost:7474. Rien d'autre n'est publié sur votre machine : les
+# bases s'atteignent par « docker compose exec <service> <shell> ».
+#
+# Mémoire : chaque base tient sur un portable de TD, mais pas toutes ensemble.
+# Avant de lever un cluster à trois nœuds, arrêtez ce qui ne sert plus
+# (docker compose stop neo4j, par exemple). Les tailles de tas Java sont
+# bornées pour Neo4j et Cassandra : ne pas les « optimiser ».
+#
+# Le réseau porte un nom fixe (ondine-net) et les conteneurs aussi : les
+# commandes des TD (docker network disconnect ondine-net mongo1 ...) sont
+# ainsi identiques sur toutes les machines.
+
+services:
+  web:
+    build: .
+    container_name: ondine-web
+    env_file: .env
+    volumes:
+      - ./:/code
+    ports:
+      - "127.0.0.1:${ONDINE_PORT:-8000}:8000"
+    depends_on:
+      pg:
+        condition: service_healthy
+    networks: [ondine-net]
+
+  pg:
+    image: postgres:16-alpine
+    container_name: ondine-pg
+    environment:
+      POSTGRES_USER: ondine
+      POSTGRES_PASSWORD: ondine
+      POSTGRES_DB: ondine
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ondine"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+    networks: [ondine-net]
+
+  # ------------------------------------------------------------ chapitre 2
+  mongo:
+    image: mongo:7
+    container_name: ondine-mongo
+    profiles: ["mongo"]
+    networks: [ondine-net]
+
+  # Interface web facultative : docker compose --profile mongo-ui up -d
+  mongo-express:
+    image: mongo-express:1.0.2
+    container_name: ondine-mongo-ui
+    profiles: ["mongo-ui"]
+    environment:
+      ME_CONFIG_MONGODB_URL: "mongodb://mongo:27017"
+      ME_CONFIG_BASICAUTH: "false"
+    ports: ["127.0.0.1:8081:8081"]
+    networks: [ondine-net]
+
+  # Le replica set (chapitre 1) : cluster/replica-set.sh
+  mongo1: &mongo-rs
+    image: mongo:7
+    container_name: mongo1
+    profiles: ["rs"]
+    command: ["mongod", "--replSet", "rs-td", "--bind_ip_all", "--port", "27017"]
+    networks: [ondine-net]
+  mongo2:
+    <<: *mongo-rs
+    container_name: mongo2
+  mongo3:
+    <<: *mongo-rs
+    container_name: mongo3
+
+  # ------------------------------------------------------------ chapitre 3
+  # Sans persistance, volontairement : la RAM est volatile, et le chapitre 3
+  # le fait voir (docker kill ondine-redis, et tout a disparu). La mission 5
+  # rallume le journal (AOF) : REDIS_AOF=yes dans .env, puis
+  # docker compose up -d redis.
+  redis:
+    image: redis:7-alpine
+    container_name: ondine-redis
+    profiles: ["redis"]
+    command: ["redis-server", "--save", "", "--appendonly", "${REDIS_AOF:-no}"]
+    networks: [ondine-net]
+
+  # ------------------------------------------------------------ chapitre 4
+  neo4j:
+    image: neo4j:5
+    container_name: ondine-neo4j
+    profiles: ["graphe"]
+    environment:
+      NEO4J_AUTH: "none"
+      NEO4J_server_memory_heap_initial__size: "512m"
+      NEO4J_server_memory_heap_max__size: "512m"
+      NEO4J_server_memory_pagecache_size: "256m"
+    ports:
+      - "127.0.0.1:7474:7474"
+      - "127.0.0.1:7687:7687"
+    networks: [ondine-net]
+
+  cassandra:
+    image: cassandra:5
+    container_name: ondine-cassandra
+    profiles: ["colonne"]
+    environment:
+      MAX_HEAP_SIZE: "512M"
+      HEAP_NEWSIZE: "128M"
+      CASSANDRA_CLUSTER_NAME: "ondine"
+    networks: [ondine-net]
+
+  # L'anneau à trois nœuds : cluster/anneau.sh
+  cass1: &cass-anneau
+    image: cassandra:5
+    container_name: cass1
+    profiles: ["anneau"]
+    environment:
+      MAX_HEAP_SIZE: "400M"
+      HEAP_NEWSIZE: "100M"
+      CASSANDRA_CLUSTER_NAME: "ondine-anneau"
+      CASSANDRA_SEEDS: "cass1"
+    networks: [ondine-net]
+  cass2:
+    <<: *cass-anneau
+    container_name: cass2
+  cass3:
+    <<: *cass-anneau
+    container_name: cass3
+
+  # ------------------------------------------------------------ chapitre 5
+  # Le cluster shardé : cluster/shards.sh
+  cfg:
+    image: mongo:7
+    container_name: cfg
+    profiles: ["shards"]
+    command: ["mongod", "--configsvr", "--replSet", "cfg-td", "--port", "27017", "--bind_ip_all"]
+    networks: [ondine-net]
+  shard1:
+    image: mongo:7
+    container_name: shard1
+    profiles: ["shards"]
+    command: ["mongod", "--shardsvr", "--replSet", "sh1-td", "--port", "27017", "--bind_ip_all"]
+    networks: [ondine-net]
+  shard2:
+    image: mongo:7
+    container_name: shard2
+    profiles: ["shards"]
+    command: ["mongod", "--shardsvr", "--replSet", "sh2-td", "--port", "27017", "--bind_ip_all"]
+    networks: [ondine-net]
+  mongos:
+    image: mongo:7
+    container_name: mongos
+    profiles: ["shards"]
+    command: ["mongos", "--configdb", "cfg-td/cfg:27017", "--bind_ip_all"]
+    depends_on: [cfg, shard1, shard2]
+    networks: [ondine-net]
+
+networks:
+  ondine-net:
+    name: ondine-net

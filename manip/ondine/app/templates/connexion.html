@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block titre %}Connexion - Ondine{% endblock %}
+{% block contenu %}
+<h1>Qui êtes-vous aujourd'hui ?</h1>
+<p>Pas de mot de passe : c'est un TD. Choisissez un compte, tous sont à vous.</p>
+<form method="post" class="connexion">
+  <select name="utilisateur_id">
+    {% for u in utilisateurs %}<option value="{{ u.id }}">{{ u.id }} · {{ u.pseudo }} ({{ u.ville }}, {{ u.abonnement }})</option>{% endfor %}
+  </select>
+  <button class="principal">Entrer</button>
+</form>
+{% endblock %}
