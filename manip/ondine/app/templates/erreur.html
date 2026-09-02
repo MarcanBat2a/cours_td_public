@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block titre %}{{ titre }} - Ondine{% endblock %}
+{% block contenu %}
+<section class="erreur erreur-{{ type }}">
+  <h1>{{ titre }}</h1>
+  <pre>{{ message }}</pre>
+  {% if type == 'mission' %}
+    <p>Cette fonction est un squelette : c'est une mission du TD. Ouvrez le fichier indiqué, écrivez-la, enregistrez - le serveur se recharge tout seul.</p>
+  {% elif type == 'base' %}
+    <p>Vérifiez <code>docker compose ps</code> : la base réglée dans <code>.env</code> doit tourner. Chaque base a son profil : <code>docker compose --profile mongo up -d</code>, par exemple.</p>
+  {% elif type == 'bug' %}
+    <p>La pile complète est dans <code>docker compose logs web</code>.</p>
+  {% endif %}
+  <p><a href="/">Retour à l'accueil</a> · <a href="/etat">État</a></p>
+</section>
+{% endblock %}
