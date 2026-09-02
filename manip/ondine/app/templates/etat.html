@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block titre %}État - Ondine{% endblock %}
+{% block contenu %}
+<h1>État d'Ondine</h1>
+<section class="deux-colonnes">
+  <div>
+    <h2>Qui stocke quoi</h2>
+    <table class="liste"><tbody>
+      {% for r, v in roles.items() %}<tr><th>{{ r }}</th><td><code>{{ v }}</code></td></tr>{% endfor %}
+    </tbody></table>
+    <p class="aide">Se règle dans <code>.env</code>, puis <code>docker compose up -d web</code>.</p>
+    <h2>Accès</h2>
+    <table class="liste"><tbody>
+      {% for k, v in acces.items() %}<tr><th>{{ k }}</th><td><code>{{ v }}</code></td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+  <div>
+    <h2>Temps de réponse <small>depuis le démarrage</small></h2>
+    <table class="liste">
+      <thead><tr><th>Route</th><th>Requêtes</th><th>Moyenne</th><th>p50</th><th>p95</th><th>Max</th></tr></thead>
+      <tbody>{% for l in bilan %}
+        <tr><td><code>{{ l.route }}</code></td><td>{{ l.nb }}</td>
+          <td>{{ '%.0f'|format(l.moyenne) }} ms</td><td>{{ '%.0f'|format(l.p50) }} ms</td>
+          <td class="{% if l.p95 > 500 %}rouge{% elif l.p95 > 100 %}orange{% else %}vert{% endif %}">{{ '%.0f'|format(l.p95) }} ms</td>
+          <td>{{ '%.0f'|format(l.max) }} ms</td></tr>
+      {% else %}<tr><td colspan="6" class="vide">Aucune requête mesurée.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+    <form method="post" action="/etat/zero"><button>Remettre à zéro</button></form>
+    <p class="aide">Vert : p95 sous 100 ms. Orange : sous 500 ms. Rouge : le samedi soir va faire mal.</p>
+  </div>
+</section>
+{% endblock %}

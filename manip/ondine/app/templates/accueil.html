@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block contenu %}
+<section class="deux-colonnes">
+  <div>
+    <h1>Top 50 de la semaine <small>depuis le {{ depuis.strftime('%d/%m') }}</small></h1>
+    <p class="chrono">calculé en {{ '%.1f'|format(chrono.top) }} ms</p>
+    <ol class="top">
+      {% for cid, nb in top %}
+        <li><a href="/contenu/{{ cid }}">{{ titres[cid].titre if cid in titres else cid }}</a>
+          <span class="artiste">{{ titres[cid].artiste if cid in titres else '' }}</span>
+          <span class="nb">{{ nb }}</span></li>
+      {% endfor %}
+    </ol>
+  </div>
+  <aside>
+    <h2>En ce moment</h2>
+    <p class="chrono">{{ '%.1f'|format(chrono.dernieres) }} ms</p>
+    {% if dernieres %}
+    <ul class="dernieres">
+      {% for e in dernieres %}
+        <li><b>{{ e.pseudo or e.utilisateur_id }}</b> écoute
+          <a href="/contenu/{{ e.contenu_id }}">{{ titres[e.contenu_id].titre if e.contenu_id in titres else e.contenu_id }}</a>
+          <span class="quand">{{ e.date.strftime('%d/%m %H:%M') }}</span></li>
+      {% endfor %}
+    </ul>
+    {% else %}
+      <p class="vide">Indisponible avec cette base : il n'y a pas de table pour cette question.</p>
+    {% endif %}
+  </aside>
+</section>
+{% endblock %}
