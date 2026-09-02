@@ -1,0 +1,53 @@
+:root { --bleu: #0b4c56; --turquoise: #179aaf; --or: #ffcf00; --gris: #3d3d3d; --clair: #f1f5f6; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; color: var(--gris); background: #fff; line-height: 1.5; }
+.entete { display: flex; align-items: center; gap: 2rem; padding: .6rem 1.5rem; background: var(--bleu); color: #fff; }
+.entete a { color: #fff; text-decoration: none; }
+.entete .logo { font-weight: 800; font-size: 1.4rem; letter-spacing: .04em; }
+.entete nav a { margin-right: 1.2rem; opacity: .9; }
+.entete nav a.etat { border: 1px solid var(--or); color: var(--or); padding: .1rem .6rem; border-radius: 999px; }
+.entete .qui { margin-left: auto; display: flex; gap: .6rem; align-items: center; }
+button.lien { background: none; border: none; color: #fff; text-decoration: underline; cursor: pointer; }
+main { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+.pied { display: flex; justify-content: space-between; padding: .8rem 1.5rem; font-size: .8rem; color: #666; border-top: 1px solid #ddd; margin-top: 2rem; }
+h1 small, h2 small, h3 small { font-weight: 400; color: #777; font-size: .7em; margin-left: .5rem; }
+.deux-colonnes { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
+.chrono { color: #777; font-size: .85rem; margin: -.4rem 0 .8rem; }
+ol.top { padding-left: 2rem; columns: 2; }
+ol.top li { margin: .15rem 0; break-inside: avoid; }
+ol.top .artiste { color: #777; font-size: .85rem; margin-left: .4rem; }
+.nb { float: right; background: var(--clair); border-radius: 999px; padding: 0 .5rem; font-size: .8rem; color: var(--bleu); }
+ul.dernieres { list-style: none; padding: 0; }
+ul.dernieres li { padding: .3rem 0; border-bottom: 1px solid #eee; }
+.quand { color: #999; font-size: .8rem; margin-left: .3rem; }
+.vide { color: #999; font-style: italic; }
+.filtres { display: flex; gap: .5rem; margin-bottom: .5rem; }
+.filtres input, .filtres select, .connexion select, .nouvel-avis input, .nouvel-avis select, .actions select { padding: .4rem .6rem; border: 1px solid #bbb; border-radius: 4px; font-size: 1rem; }
+button { padding: .4rem .9rem; border: 1px solid var(--bleu); background: #fff; color: var(--bleu); border-radius: 4px; cursor: pointer; font-size: 1rem; }
+button.principal { background: var(--bleu); color: #fff; }
+.compte { color: #777; font-size: .85rem; }
+table.liste { width: 100%; border-collapse: collapse; }
+table.liste th, table.liste td { text-align: left; padding: .35rem .5rem; border-bottom: 1px solid #eee; vertical-align: top; }
+table.liste th { color: #555; font-weight: 600; font-size: .85rem; }
+.type { font-size: .75rem; padding: .05rem .5rem; border-radius: 999px; background: #ddd; }
+.type-album { background: #d7eef2; } .type-podcast { background: #fff0b3; } .type-livre_audio { background: #e6e0f5; } .type-concert { background: #fbd9d3; }
+.fiche header .sous { color: #555; }
+.badge { background: var(--or); color: #333; font-size: .75rem; padding: .05rem .5rem; border-radius: 999px; margin-left: .5rem; }
+.actions { display: flex; align-items: center; gap: 1rem; margin: 1rem 0; }
+.actions form { display: flex; gap: .5rem; }
+.nb-ecoutes { color: #555; }
+.details dl { display: grid; grid-template-columns: max-content 1fr; gap: .2rem 1rem; }
+.details dt { color: #777; }
+ol.pistes li span { color: #999; font-size: .85rem; margin-left: .5rem; }
+.reco ul, .avis ul { list-style: none; padding: 0; }
+.reco li, .avis li { padding: .3rem 0; border-bottom: 1px solid #eee; }
+.note { color: #c98a00; }
+.nouvel-avis { display: flex; gap: .5rem; margin-bottom: .8rem; }
+.nouvel-avis input { flex: 1; }
+.aide { color: #777; font-size: .85rem; }
+.vert { color: #1c7c3a; font-weight: 600; } .orange { color: #b96a00; font-weight: 600; } .rouge { color: #b3261e; font-weight: 700; }
+.erreur { border-left: 6px solid var(--or); padding: 1rem 1.5rem; background: var(--clair); }
+.erreur-bug { border-color: #b3261e; } .erreur-mission { border-color: var(--turquoise); }
+.erreur pre { white-space: pre-wrap; }
+code { background: var(--clair); padding: 0 .3rem; border-radius: 3px; }
+@media (max-width: 800px) { .deux-colonnes { grid-template-columns: 1fr; } ol.top { columns: 1; } }

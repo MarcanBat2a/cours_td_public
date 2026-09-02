@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block titre %}Catalogue - Ondine{% endblock %}
+{% block contenu %}
+<h1>Catalogue</h1>
+<form class="filtres" method="get">
+  <input type="search" name="q" value="{{ filtre.q }}" placeholder="titre ou artiste">
+  <select name="type">
+    <option value="">tous les types</option>
+    {% for t in types %}<option value="{{ t }}" {% if t == filtre.type %}selected{% endif %}>{{ t }}</option>{% endfor %}
+  </select>
+  <select name="genre">
+    <option value="">tous les genres</option>
+    {% for g in genres %}<option value="{{ g }}" {% if g == filtre.genre %}selected{% endif %}>{{ g }}</option>{% endfor %}
+  </select>
+  <button>Chercher</button>
+</form>
+<p class="compte">{{ contenus|length }} résultats{% if contenus|length == 60 %} (les 60 premiers){% endif %}</p>
+<table class="liste">
+  <thead><tr><th>Titre</th><th>Type</th><th>Artiste</th><th>Genres</th><th>Durée</th><th>Sortie</th></tr></thead>
+  <tbody>
+  {% for c in contenus %}
+    <tr>
+      <td><a href="/contenu/{{ c.id }}">{{ c.titre }}</a></td>
+      <td><span class="type type-{{ c.type }}">{{ c.type }}</span></td>
+      <td>{{ c.artiste }}</td>
+      <td>{{ c.genres|join(', ') if c.genres else '?' }}</td>
+      <td>{{ c.duree_s|duree }}</td>
+      <td>{{ c.date_sortie }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
