@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block titre %}{{ moi.pseudo }} - Ondine{% endblock %}
+{% block contenu %}
+<h1>{{ moi.pseudo }} <small>{{ moi.ville }} · {{ moi.abonnement }}</small></h1>
+<section class="deux-colonnes">
+  <div>
+    <h2>Mes playlists</h2>
+    {% for pl in moi.playlists %}
+      <h3>{{ pl.nom }} <small>{{ pl.contenus|length }} titres</small></h3>
+      <ol class="pistes">{% for cid in pl.contenus %}
+        <li><a href="/contenu/{{ cid }}">{{ titres[cid].titre if cid in titres else cid }}</a></li>
+      {% endfor %}</ol>
+    {% else %}<p class="vide">Aucune playlist.</p>{% endfor %}
+  </div>
+  <aside>
+    <h2>Mon historique</h2>
+    <ul class="dernieres">{% for e in historique %}
+      <li><a href="/contenu/{{ e.contenu_id }}">{{ titres[e.contenu_id].titre if e.contenu_id in titres else e.contenu_id }}</a>
+        <span class="quand">{{ e.date.strftime('%d/%m %H:%M') }} · {{ e.plateforme }}</span></li>
+    {% else %}<li class="vide">Rien encore. Allez écouter quelque chose.</li>{% endfor %}</ul>
+  </aside>
+</section>
+{% endblock %}
