@@ -35,19 +35,6 @@ uv python find
 uv run python
 ```
 
-Dans le REPL qui s'ouvre :
-
-```python
-import sys
-sys.version
-sys.executable
-exit()
-```
-
-1. Comparez `sys.executable` à la réponse de `uv python find`.
-2. Recommencez avec `python3` tout court (Windows : `py`). Même
-   exécutable ?
-
 ## Étape 2 - Un script
 
 Lisez `manip/quel_python.py`, puis :
