@@ -3,17 +3,11 @@
 **UE 0 - Algo 3 avec Python · Chapitre 1**
 Marcu-Andria Battesti · Bachelor CLIC · 2026-2027
 
-> Après l'introduction : trois travaux dirigés, en binôme, un terminal chacun.
-> Réponses courtes, sur la fiche - le mot juste compte.
-> Durées : 25, 40 et 40 minutes. Le TD 3 commence par une démo de 5 minutes.
-> Les passages « bonus » et « prolongement » ne sont pas inclus dans ces durées.
->
+
 > Prérequis : **uv** installé (`uv --version` répond), git, un terminal.
 > Sous Windows : **Git Bash**. Les commandes `uv` sont les mêmes partout ;
 > seules changent `py` à la place de `python3`, `where` à la place de
 > `which -a`, et `Scripts` à la place de `bin` dans les chemins.
->
-> **★** : les questions dont la réponse doit tenir en une phrase juste.
 >
 > Le dossier `manip/` du chapitre se copie une fois dans un dossier de
 > travail. Tout ce que les TD créent (`algo3/`, `vieux-projet/`,
