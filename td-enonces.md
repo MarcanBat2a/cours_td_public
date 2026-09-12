@@ -17,9 +17,7 @@ Marcu-Andria Battesti · Bachelor CLIC · 2026-2027
 
 # TD 1 - Quel Python ?
 
-**25 minutes · en binôme · sur machine**
-
-## Étape 0 - L'outil et les Python du poste *(4 min)*
+## Étape 0 - L'outil et les Python du poste 
 
 ```bash
 uv --version
@@ -30,7 +28,7 @@ which -a python3                  # Windows : where python
 1. La version d'uv. Combien de Python `uv` connaît-il sur ce poste ?
 2. Combien de lignes renvoie `which -a` ? Sont-ce les mêmes chemins ?
 
-## Étape 1 - Celui qu'uv choisit *(5 min)*
+## Étape 1 - Celui qu'uv choisit 
 
 ```bash
 uv python find
@@ -50,7 +48,7 @@ exit()
 2. Recommencez avec `python3` tout court (Windows : `py`). Même
    exécutable ?
 
-## Étape 2 - Un script *(8 min)*
+## Étape 2 - Un script
 
 Lisez `manip/quel_python.py`, puis :
 
@@ -66,7 +64,7 @@ python3 manip/quel_python.py      # Windows : py manip/quel_python.py
    résultats. Qu'est-ce que cela dit du rapport entre un fichier `.py` et
    « le programme » ?
 
-## Étape 3 - Un autre Python, sans rien casser *(8 min)*
+## Étape 3 - Un autre Python, sans rien casser
 
 ```bash
 uv run --python 3.13 manip/quel_python.py
@@ -86,7 +84,7 @@ Sans réseau : l'enseignant le montre au projecteur.
 
 **40 minutes · en binôme · sur machine**
 
-## Étape 0 - Naissance d'un projet *(5 min)*
+## Étape 0 - Naissance d'un projet
 
 ```bash
 uv init algo3
@@ -99,7 +97,7 @@ cat .python-version
 1. Les fichiers créés. Lequel dit quel Python le projet veut ?
 2. `dependencies = []` : que promet cette ligne pour l'instant ?
 
-## Étape 1 - Le premier `run` *(6 min)*
+## Étape 1 - Le premier `run`
 
 ```bash
 uv run main.py
@@ -113,7 +111,7 @@ uv run ../manip/quel_python.py
 2. La ligne `home =` : que désigne-t-elle ?
 3. Quelles lignes de `quel_python.py` ont changé depuis le TD 1 ?
 
-## Étape 2 - Activer, ou pas *(7 min)*
+## Étape 2 - Activer, ou pas
 
 ```bash
 echo $PATH | cut -d: -f1
@@ -130,7 +128,7 @@ deactivate
    Qu'est-ce que l'activation, exactement, et pourquoi `uv run` s'en
    passe-t-il ?
 
-## Étape 3 - Deux versions *(16 min)*
+## Étape 3 - Deux versions
 
 ```bash
 uv add requests
@@ -163,7 +161,7 @@ uv tree
 5. **Bonus après la séance** : `uv run ../algo3/version_pypi.py requests`
    ici. Une ligne diffère de la sortie dans `algo3` : laquelle, pourquoi ?
 
-## Étape 4 - Hors de l'atelier *(6 min)*
+## Étape 4 - Hors de l'atelier
 
 ```bash
 cd ..
@@ -205,7 +203,7 @@ cat pyproject.toml
 L'enseignant remet `requests`. Les binômes passent à l'étape 2 avec le
 paquet toujours présent dans leur propre projet.
 
-## Étape 2 - Deux fichiers pour un contrat *(12 min)*
+## Étape 2 - Deux fichiers pour un contrat
 
 ```bash
 cat pyproject.toml
@@ -231,7 +229,7 @@ python3 -c "import requests"      # Windows : py -c "import requests"
 3. La liste est-elle identique ? Qu'a lu `uv sync` pour la refaire ?
 4. Que répond la dernière commande, et pourquoi est-ce rassurant ?
 
-## Étape 3 - Le contrat qui ment ★ *(12 min)*
+## Étape 3 - Le contrat qui ment ★
 
 ```bash
 cd ..
@@ -249,7 +247,7 @@ uv sync
 3. Corrigez, relancez. Puis `uv run tableau.py` et `uv tree`. Combien de
    paquets pour deux lignes de contrat ?
 
-## Étape 4 - Prêt à cloner *(11 min)*
+## Étape 4 - Prêt à cloner
 
 De retour dans `algo3` :
 
