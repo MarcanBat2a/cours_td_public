@@ -1,0 +1,11 @@
+# Projet « tableau de bord », livré par un collègue parti en congé.
+# Deux lignes mentent. uv s'arrête à la première qu'il rencontre :
+# lisez son message, corrigez cette ligne seulement, relancez.
+[project]
+name = "tableau-de-bord"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "cowsay==999.0",
+    "richh==15.0.0",
+]
