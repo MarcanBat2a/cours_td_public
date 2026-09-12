@@ -47,9 +47,7 @@ python3 manip/quel_python.py      # Windows : py manip/quel_python.py
 1. Repérez les quatre lignes ; notez seulement l'exécutable et « dans un venv ».
 2. La ligne « dans un venv » compare deux valeurs : lesquelles, et
    pourquoi `False` ?
-3. ★ Le même fichier lancé par deux Python différents peut donner deux
-   résultats. Qu'est-ce que cela dit du rapport entre un fichier `.py` et
-   « le programme » ?
+
 
 ## Étape 3 - Un autre Python, sans rien casser
 
@@ -57,8 +55,6 @@ python3 manip/quel_python.py      # Windows : py manip/quel_python.py
 uv run --python 3.13 manip/quel_python.py
 uv python list --only-installed
 ```
-
-Sans réseau : l'enseignant le montre au projecteur.
 
 1. Quelles lignes ont changé par rapport à l'étape 2 ?
 2. Où ce Python a-t-il été rangé ? Le poste en a-t-il un de plus ou de
@@ -68,8 +64,6 @@ Sans réseau : l'enseignant le montre au projecteur.
 ---
 
 # TD 2 - Deux ateliers
-
-**40 minutes · en binôme · sur machine**
 
 ## Étape 0 - Naissance d'un projet
 
@@ -166,8 +160,6 @@ python3 -c "import requests"      # Windows : py -c "import requests"
 ---
 
 # TD 3 - Reproduire
-
-**40 minutes · en binôme · dont 5 minutes de démonstration**
 
 Dans `algo3`.
 

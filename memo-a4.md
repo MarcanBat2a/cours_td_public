@@ -95,6 +95,3 @@ uv sync                       Python compris, si .python-version le demande
 uv run version_pypi.py
 ```
 
-Le test du chapitre : *si ça se répare en le supprimant, ce n'était pas
-précieux* - `.venv/` et `__pycache__/` passent le test ; `pyproject.toml`,
-`uv.lock` et votre code, non.
