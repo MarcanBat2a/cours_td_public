@@ -3,239 +3,194 @@
 **UE 0 - Algo 3 avec Python · Chapitre 1**
 Marcu-Andria Battesti · Bachelor CLIC · 2026-2027
 
+**Travail individuel.** Chaque étudiant réalise les manipulations dans son
+propre dossier et conserve ses fichiers.
 
-> Prérequis : **uv** installé (`uv --version` répond), git, un terminal.
-> Sous Windows : **Git Bash**. Les commandes `uv` sont les mêmes partout ;
-> seules changent `py` à la place de `python3`, `where` à la place de
-> `which -a`, et `Scripts` à la place de `bin` dans les chemins.
->
-> Le dossier `manip/` du chapitre se copie une fois dans un dossier de
-> travail. Tout ce que les TD créent (`algo3/`, `vieux-projet/`,
-> `tableau-de-bord/`) naît à côté de lui, dans ce même dossier.
+À la fin de ces trois TD, vous saurez **lancer un fichier Python, ajouter
+un paquet à un projet et reprendre ce projet**.
+
+Avant de commencer, suivez la partie **Préparer le dossier de travail** du
+[README](README.md). Gardez [le mémo](memo-a4.md) ouvert pendant la séance.
+Sous Windows, toutes les commandes ci-dessous se tapent dans **Git Bash**.
+
+**Deux endroits à distinguer :** les commandes des blocs `bash` se tapent
+dans le **terminal**, une ligne à la fois. Le code des blocs `python` se
+modifie dans un **fichier ouvert dans l'éditeur**. Enregistrez avant de lancer.
 
 ---
 
-# TD 1 - Quel Python ?
+# TD 1 - Lancer et modifier un premier programme
 
-## Étape 0 - L'outil et les Python du poste 
+**Dossier de départ : `travail-python`**, qui contient `manip`.
+
+## Étape 1 - Vérifier que l'outil répond
 
 ```bash
 uv --version
-uv python list --only-installed
-which -a python3                  # Windows : where python
 ```
 
-1. La version d'uv. Combien de Python `uv` connaît-il sur ce poste ?
-2. Combien de lignes renvoie `which -a` ? Sont-ce les mêmes chemins ?
+Un numéro de version doit apparaître. Si le terminal indique que la commande
+est introuvable, reprenez l'installation du mémo avec l'enseignant.
 
-## Étape 1 - Celui qu'uv choisit 
+`uv` est l'outil qui va préparer Python et lancer nos programmes. Il peut
+télécharger Python au premier lancement : attendez le retour du terminal.
+
+## Étape 2 - Lancer un fichier
 
 ```bash
-uv python find
-uv run python
+uv run manip/bonjour.py
 ```
 
-## Étape 2 - Un script
+Vous devez obtenir :
 
-Lisez `manip/quel_python.py`, puis :
-
-```bash
-uv run manip/quel_python.py
-python3 manip/quel_python.py      # Windows : py manip/quel_python.py
+```text
+Bonjour Camille
+2 + 3 = 5
 ```
 
-1. Repérez les quatre lignes ; notez seulement l'exécutable et « dans un venv ».
-2. La ligne « dans un venv » compare deux valeurs : lesquelles, et
-   pourquoi `False` ?
+**À retenir :** `uv run` suivi du chemin d'un fichier lance ce fichier.
 
+## Étape 3 - Faire une petite modification
 
-## Étape 3 - Un autre Python, sans rien casser
+Ouvrez `manip/bonjour.py` dans l'éditeur. Il contient :
 
-```bash
-uv run --python 3.13 manip/quel_python.py
-uv python list --only-installed
+```python
+prenom = "Camille"
+print("Bonjour", prenom)
+print("2 + 3 =", 2 + 3)
 ```
 
-1. Quelles lignes ont changé par rapport à l'étape 2 ?
-2. Où ce Python a-t-il été rangé ? Le poste en a-t-il un de plus ou de
-   moins qu'au début ?
-3. ★ Que garantit `uv run` que `python3` ne garantit pas ?
+1. Remplacez `Camille` par votre prénom, en gardant les guillemets.
+2. Enregistrez le fichier, puis relancez la même commande dans le terminal.
+3. Vérifiez que votre prénom apparaît.
+
+`print` affiche un message. Nous reviendrons sur la syntaxe Python dans les
+prochains chapitres.
+
+**Point de contrôle :** chacun doit réussir à modifier, enregistrer et relancer
+le programme avant de passer au TD 2.
 
 ---
 
-# TD 2 - Deux ateliers
+# TD 2 - Créer un projet et ajouter un paquet
 
-## Étape 0 - Naissance d'un projet
+**Dossier de départ : `travail-python`**, comme à la fin du TD 1.
+
+Un **projet** est un dossier qui rassemble votre code et les fichiers utiles
+pour le faire fonctionner. Un **paquet** est du code déjà écrit que vous
+pouvez utiliser dans votre programme.
+
+## Étape 1 - Créer le projet
 
 ```bash
-uv init algo3
+uv init --no-package algo3
 cd algo3
-ls -a
-cat pyproject.toml
-cat .python-version
-```
-
-1. Les fichiers créés. Lequel dit quel Python le projet veut ?
-2. `dependencies = []` : que promet cette ligne pour l'instant ?
-
-## Étape 1 - Le premier `run`
-
-```bash
 uv run main.py
-ls -a
-ls .venv                          # Windows : ls .venv/Scripts
-cat .venv/pyvenv.cfg
-uv run ../manip/quel_python.py
 ```
 
-1. Deux choses sont apparues dans le dossier : lesquelles ?
-2. La ligne `home =` : que désigne-t-elle ?
-3. Quelles lignes de `quel_python.py` ont changé depuis le TD 1 ?
+Vous devez voir `Hello from algo3!`. Le premier lancement crée aussi un
+dossier `.venv` : il contient l'environnement Python du projet et accueillera
+ses paquets. `uv` s'en occupe automatiquement.
 
-## Étape 2 - Activer, ou pas
+Ouvrez `algo3/main.py` dans l'éditeur. Remplacez **tout son contenu** par :
 
-```bash
-echo $PATH | cut -d: -f1
-source .venv/bin/activate         # Windows : source .venv/Scripts/activate
-echo $PATH | cut -d: -f1
-which python
-python ../manip/quel_python.py
+```python
+print("Mon projet fonctionne !")
 ```
 
-1. Ce qui a changé dans le PATH, et dans l'invite.
+Enregistrez et relancez `uv run main.py`. Vérifiez que le message a changé.
 
-## Étape 3 - Deux versions
+## Étape 2 - Ajouter un paquet
+
+Nous allons utiliser `requests`, un paquet qui permet à Python d'interroger
+un site web. Cette étape nécessite une connexion Internet.
 
 ```bash
 uv add requests
-cat pyproject.toml
-uv tree
-uv pip show requests
-```
-
-1. Combien de paquets installés pour un seul demandé ?
-2. La ligne ajoutée à `pyproject.toml` : est-ce un numéro exact ?
-3. `Location` : où vivent ces paquets ?
-
-```bash
 cp ../manip/version_pypi.py .
 uv run version_pypi.py requests
 ```
 
-Un second projet, avec une vieille version :
+La commande `cp` copie le programme fourni dans le dossier actuel.
+`..` désigne le dossier parent ; le point final `.` désigne le dossier actuel.
+
+Le programme consulte PyPI, le catalogue des paquets Python. Il affiche cinq
+lignes : la première nomme `requests` et la dernière indique la version de
+`requests` utilisée. **Les numéros peuvent différer entre les postes.**
+
+1. Repérez ces deux lignes. Si elles apparaissent, le programme fonctionne.
+2. Consultez maintenant la fiche du paquet `rich` :
 
 ```bash
-cd ..
-uv init vieux-projet
-cd vieux-projet
-uv add "requests==2.25.1"
-uv tree
+uv run version_pypi.py rich
 ```
 
-4. Un nom diffère entre les deux arbres : lequel ? Qu'est-ce que
-   « mettre à jour requests » entraîne ?
-5. **Bonus après la séance** : `uv run ../algo3/version_pypi.py requests`
-   ici. Une ligne diffère de la sortie dans `algo3` : laquelle, pourquoi ?
+La première ligne doit maintenant nommer `rich`. Le programme utilise toujours
+`requests` pour consulter cette fiche.
 
-## Étape 4 - Hors de l'atelier
-
-```bash
-cd ..
-python3 -c "import requests"      # Windows : py -c "import requests"
-```
-
-1. Que répond Python ? Si ça marche, trouvez quel Python répond et où vit
-   ce `requests`.
-
-
-> Ne supprimez pas `algo3`. `vieux-projet` a fini son travail.
+**Point de contrôle :** vous savez lancer votre code avec `uv run` et ajouter
+un paquet avec `uv add`.
 
 ---
 
-# TD 3 - Reproduire
+# TD 3 - Retrouver un projet qui fonctionne
 
-Dans `algo3`.
+**Dossier de départ : `travail-python/algo3`**, comme à la fin du TD 2.
 
-## Étape 1 - Ce qu'un paquet apporte, ce qu'il emporte *(5 min, démo enseignant)*
+## Étape 1 - Repérer les fichiers à garder
 
-Gardez votre projet intact. Avant chaque commande au projecteur,
-prédisez le résultat puis répondez sur la fiche.
+Ouvrez `algo3/pyproject.toml` dans l'éditeur et repérez la ligne contenant `requests`.
+Il suffit de comprendre le rôle de ces fichiers :
 
-```bash
-uv tree
-uv remove requests
-uv pip list
-cat pyproject.toml
-```
+| Élément | À quoi sert-il ? |
+| --- | --- |
+| Les fichiers `.py` | Votre programme |
+| `.python-version` | La version de Python demandée |
+| `pyproject.toml` | Les paquets demandés par le projet |
+| `uv.lock` | Les versions des paquets retenues par uv |
+| `.venv` | L'environnement que uv prépare pour ce projet |
 
-1. Combien de paquets retirés pour un seul nom ?
-2. Qu'a fait `uv remove` que `pip uninstall requests` n'aurait pas fait ?
-3. Qu'est-ce qui a changé dans `pyproject.toml` ? Et dans `uv.lock` ?
+Gardez les fichiers du projet. **Il est inutile de partager `.venv` : uv peut
+le recréer.** Vous n'avez pas à modifier `uv.lock` à la main.
 
-L'enseignant remet `requests`. Les binômes passent à l'étape 2 avec le
-paquet toujours présent dans leur propre projet.
+## Étape 2 - Vérifier sur une copie sans environnement
 
-## Étape 2 - Deux fichiers pour un contrat
-
-```bash
-cat pyproject.toml
-grep '^name = \|^version = ' uv.lock
-```
-
-1. `pyproject.toml` dit `requests>=2.34.2` ; `uv.lock` dit `2.34.2`, et
-   quatre autres numéros. Lequel des deux fichiers est l'intention,
-   lequel est la photo ?
-2. ★ Pourquoi partager les deux ? Le scénario où `pyproject.toml` seul
-   trahit le binôme.
-
-Détruisez, puis reconstruisez :
+Nous allons copier le projet dans `algo3-copie`, sans son dossier `.venv`.
+Exécutez ces commandes une seule fois depuis `algo3` :
 
 ```bash
-rm -rf .venv
+mkdir ../algo3-copie
+cp .python-version pyproject.toml uv.lock README.md main.py version_pypi.py ../algo3-copie/
+cd ../algo3-copie
 uv sync
-uv pip list
 uv run version_pypi.py requests
-python3 -c "import requests"      # Windows : py -c "import requests"
 ```
 
-3. La liste est-elle identique ? Qu'a lu `uv sync` pour la refaire ?
-4. Que répond la dernière commande, et pourquoi est-ce rassurant ?
+`uv sync` prépare l'environnement à partir des fichiers du projet. Vous devez
+retrouver les cinq lignes du programme, avec la même version de `requests`
+utilisée qu'au TD 2. Le projet d'origine est toujours dans `algo3`.
 
-## Étape 3 - Le contrat qui ment ★
+1. Le programme fonctionne-t-il dans la copie ?
+2. Quel dossier uv a-t-il recréé ? Vérifiez avec `ls -a`.
 
-```bash
-cd ..
-cp -r manip/tableau-de-bord .
-cd tableau-de-bord
-cat pyproject.toml
+## Étape 3 - Préparer la prochaine séance
+
+Dans le fichier `algo3/README.md`, notez :
+
+```text
+Mon projet Python
+Ouvrir un terminal dans le dossier algo3, puis exécuter :
 uv sync
+uv run version_pypi.py requests
 ```
 
-1. ★ Lisez l'erreur avant de toucher au fichier. Recopiez la phrase qui
-   commence par `Because`. Quelle cause ? À quoi le voyez-vous ?
-2. Corrigez cette ligne seulement, relancez. Nouvelle erreur : même question.
-   Pour trouver un numéro qui existe : `version_pypi.py` depuis `algo3`,
-   ou retirer l'épingle et lire ce qu'uv a choisi.
-3. Corrigez, relancez. Puis `uv run tableau.py` et `uv tree`. Combien de
-   paquets pour deux lignes de contrat ?
+Pour reprendre le projet une prochaine fois, ouvrez le dossier `algo3` dans
+l'éditeur et un terminal dans ce dossier, puis suivez ces instructions.
 
-## Étape 4 - Prêt à cloner
+**Vous avez terminé le parcours principal.** À l'aide du mémo, chacun doit
+pouvoir montrer comment lancer un fichier, ajouter un paquet et préparer
+l'environnement d'un projet récupéré.
 
-De retour dans `algo3` :
-
-```bash
-cat .gitignore
-git status
-```
-
-1. `.venv/` apparaît-il ? Qui a écrit `.gitignore` ? Quels fichiers git
-   propose-t-il de suivre ?
-2. Remplacez `README.md` par quatre lignes : le nom du projet, les deux
-   commandes pour le reconstruire et lancer `version_pypi.py`.
-   **Prolongement après la séance** : `git add .` et un premier commit.
-3. ★ Le binôme clone ce dépôt sur un poste neuf où seul uv est installé,
-   sans Python. Les commandes exactes, dans l'ordre, pour lancer
-   `version_pypi.py`. Pas une de plus. D'où vient le Python ?
-
-> Le mémo `memo-a4.md`, distribué en fin de séance, reprend toutes les
-> commandes.
+Les [bonus](td-bonus.md) sont facultatifs. L'enseignant peut en montrer un
+si cela aide à répondre à une question ; ils ne sont pas nécessaires pour
+réussir le parcours principal.

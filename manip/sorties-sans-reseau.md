@@ -1,16 +1,35 @@
 # Sorties réelles (repli sans réseau)
 
-Les TD 2 et 3 installent des paquets depuis PyPI, et le TD 1 télécharge
-un second Python : sans réseau, ils s'arrêtent là. Les sorties ci-dessous
-sont celles, exactes, d'un poste macOS avec uv 0.10.0 et Python 3.14.2 le
+Le premier lancement peut télécharger Python, et l'installation des paquets
+ainsi que la consultation de PyPI nécessitent une connexion Internet.
+Les sorties ci-dessous sont une archive des manipulations d'environnement,
+utile à l'enseignant pour le parcours principal et les bonus. Les sections
+« Complément enseignant » vont au-delà du parcours principal.
+Elles ont été relevées sur un poste macOS avec uv 0.10.0 et Python 3.14.2 le
 12 septembre 2026. **Les numéros de version changent chaque mois** ; la
-forme des réponses, non. Faites les fiches sur papier avec ces sorties,
-et rejouez-les chez vous.
+forme générale des réponses reste comparable. Repérez avec l'enseignant le
+résultat de la commande étudiée, puis rejouez-la une fois connecté.
+
+Les sorties du premier programme et de la copie du projet ont été vérifiées
+le 13 septembre 2026, avec uv 0.10.0 et 0.12.13.
 
 Les chemins commencent par `/Users/lou/` : chez vous, c'est votre dossier
 personnel (`C:\Users\lou\` sous Windows).
 
-## TD 1 - les Python du poste
+## TD 1 - le premier programme
+
+Depuis `travail-python`, avant de modifier le prénom :
+
+```text
+$ uv run manip/bonjour.py
+Bonjour Camille
+2 + 3 = 5
+```
+
+Après modification et enregistrement, la première ligne affiche le prénom
+choisi. La seconde reste identique.
+
+## Bonus 1 - les Python du poste
 
 ```text
 $ uv --version
@@ -58,6 +77,9 @@ dans un venv : False
 ```
 
 ## TD 2 - un projet neuf
+
+Ces relevés utilisent uv 0.10.0. Dans l'énoncé actuel, `uv init --no-package algo3`
+produit cette structure également avec les versions récentes d'uv.
 
 ```text
 $ uv init algo3
@@ -122,7 +144,7 @@ préfixe      : /Users/lou/projets/algo3/.venv
 dans un venv : True
 ```
 
-## TD 2 - requests, deux fois
+## TD 2 et bonus 2 - requests, deux fois
 
 ```text
 $ uv add requests
@@ -194,7 +216,8 @@ vieux-projet v0.1.0
     ├── idna v2.10
     └── urllib3 v1.26.20
 
-$ uv run ../algo3/version_pypi.py requests
+$ cp ../manip/version_pypi.py .
+$ uv run version_pypi.py requests
 paquet            : requests
 dernière version  : 2.34.2
 versions publiées : 163
@@ -212,7 +235,24 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'requests'
 ```
 
-## TD 3 - remove, sync
+## TD 3 - le projet copié sans son environnement
+
+Dans `algo3-copie`, après avoir copié les fichiers indiqués dans l'énoncé,
+`uv sync` crée le dossier `.venv`. Le programme peut alors être lancé :
+
+```text
+$ uv run version_pypi.py requests
+paquet            : requests
+dernière version  : 2.34.2
+versions publiées : 163
+résumé            : Python HTTP for Humans.
+requests utilisé  : 2.34.2
+```
+
+La version de `requests` utilisée est celle du projet d'origine. La dernière
+version publiée peut évoluer : c'est une information demandée à PyPI.
+
+## Complément enseignant - retirer et reconstruire un environnement
 
 ```text
 $ uv remove requests
@@ -268,7 +308,7 @@ Resolved 6 packages in 5ms
 Audited 5 packages in 0.61ms
 ```
 
-## TD 3 - le contrat qui ment
+## Bonus 3 - les deux erreurs volontaires
 
 ```text
 $ uv sync
@@ -325,7 +365,7 @@ Atelier prêt : les deux paquets répondent.
                    ||     ||
 ```
 
-## TD 3 - prêt à cloner
+## Complément enseignant - les fichiers à suivre dans Git
 
 ```text
 $ git status

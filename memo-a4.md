@@ -1,97 +1,60 @@
-# Mémo - l'atelier Python avec uv
+# Mémo - Travailler avec Python et uv
 
 **UE 0 - Algo 3 avec Python · Chapitre 1**
-Distribué en fin de séance · à rouvrir à chaque nouveau projet
-
-> Une page. Tout ce que le chapitre a fait faire, dans l'ordre où on le
-> refait : quel Python, le projet, les paquets, le contrat, le dépôt.
-> Les commandes `uv` sont identiques sous macOS, Linux et Windows.
+À garder ouvert dès le début de la séance et à chaque nouveau projet.
 
 ## Installer uv, une fois par poste
 
-| macOS, Linux | Windows (PowerShell) |
+| macOS, Linux : dans le terminal | Windows : dans PowerShell |
 | --- | --- |
 | `curl -LsSf https://astral.sh/uv/install.sh \| sh` | `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 \| iex"` |
 
-Puis rouvrir le terminal : `uv --version`. uv installe lui-même les Python
-dont un projet a besoin ; aucun autre téléchargement à faire à la main.
+Rouvrez ensuite le terminal et tapez `uv --version` : un numéro doit apparaître.
+Pour la suite du TD sous Windows, utilisez **Git Bash**.
+uv peut télécharger Python quand il en a besoin.
 
-## Quel Python ?
+## Les commandes à retenir
 
-| | commande |
+Toutes ces commandes se tapent dans le **terminal**.
+
+| Je veux… | Je tape… |
 | --- | --- |
-| ceux qu'uv connaît | `uv python list --only-installed` |
-| celui qu'uv choisirait ici | `uv python find` |
-| celui qui exécute, de l'intérieur | `import sys; sys.executable` |
-| ceux du PATH (le shell) | `which -a python3` (Windows : `where python`) |
+| Créer un projet nommé `algo3` | `uv init --no-package algo3` |
+| Entrer dans son dossier | `cd algo3` |
+| Lancer un fichier du projet | `uv run main.py` |
+| Ajouter un paquet au projet | `uv add requests` |
+| Préparer l'environnement d'un projet récupéré | `uv sync` |
 
-**`uv run script.py`** : le script tourne avec le Python **du projet**
-courant, et son atelier. `uv run --python 3.13 script.py` : avec un
-autre, téléchargé s'il manque.
+Pour les trois dernières commandes, placez-vous dans le dossier du projet.
+Modifiez le code dans **l'éditeur**, enregistrez, puis relancez dans le terminal.
 
-## Le projet : un atelier par dossier
+## Retrouver son dossier
 
-```text
-uv init monprojet        pyproject.toml, .python-version, main.py, .gitignore, README.md, git
-uv run main.py           crée .venv/ et uv.lock au premier passage, puis exécute
-```
+`pwd` affiche le dossier actuel ; `ls` affiche son contenu (`ls -a` inclut les
+fichiers cachés). `cd ..` remonte d'un dossier. `mkdir nom` crée un dossier.
+`cp source destination` copie un fichier ; `cp -R` copie un dossier.
 
-`.venv/` est l'atelier : un Python lié à l'original (`pyvenv.cfg`, ligne
-`home`), un `site-packages` à lui. **Jetable** : `rm -rf .venv`, puis
-`uv sync` le refait. Il ne se commite pas, ne s'envoie pas, ne se déplace pas.
+## Les fichiers du projet
 
-Activer (`source .venv/bin/activate`, Windows `.venv/Scripts/activate`)
-met `.venv/bin` en tête du PATH : `python` devient celui du projet. Rien
-d'autre. `uv run` fait la même chose sans y toucher.
+| À garder et à partager | Rôle |
+| --- | --- |
+| Vos fichiers `.py` et `README.md` | Le programme et ses instructions |
+| `.python-version` | Le Python demandé |
+| `pyproject.toml` | Les paquets demandés |
+| `uv.lock` | Les versions retenues par uv |
 
-## Les paquets
+**`.venv` se recrée avec `uv sync`** : inutile de le partager.
+Quand les fichiers du projet sont inchangés, uv réutilise les versions
+retenues dans `uv.lock`. Laissez uv gérer ce fichier.
 
-```text
-uv add requests               installer et l'écrire dans pyproject.toml (>= la version du jour)
-uv add "requests==2.31.0"     exactement celle-là
-uv add "requests>=2.31,<3"    dans une fourchette
-uv tree                       qui a amené qui
-uv pip show requests          Version, Location, Requires, Required-by
-uv remove requests            retirer, avec ses dépendances devenues inutiles
-```
+## Si quelque chose bloque
 
-**Versions** : `MAJEUR.MINEUR.CORRECTIF` - un majeur qui change, relisez
-votre code. `==` épingle, `>=2.31,<3` encadre, rien du tout = « la
-dernière », qui change de sens chaque semaine.
-
-## Le contrat : deux fichiers
-
-| fichier | rôle | écrit par |
-| --- | --- | --- |
-| `pyproject.toml` | l'**intention** : ce que le projet demande | `uv add`, ou vous |
-| `uv.lock` | la **photo** : chaque paquet, sa version exacte | uv seulement |
-
-```text
-uv sync                       reconstruire .venv/ depuis uv.lock, à l'identique
-```
-
-**Quand uv refuse**, lire la phrase `Because ...` avant de toucher au fichier.
-« *there is no version of X* » : le nom existe, pas ce numéro. « *X was not
-found in the package registry* » : ce nom n'existe pas ; vérifier aussi
-la compatibilité Python et l'accès à l'index. Corriger une ligne, relancer,
-relire.
-
-## Le dépôt
-
-```text
-algo3/
-├── .venv/               jamais dans git (uv init l'a mis dans .gitignore)
-├── .python-version      toujours : le Python qu'uv doit fournir
-├── pyproject.toml       toujours : l'intention
-├── uv.lock              toujours : la photo
-├── README.md            les deux commandes ci-dessous
-└── chapitre1/           votre code
-```
-
-Reconstruire un projet cloné, sur un poste où seul uv est installé :
-
-```text
-uv sync                       Python compris, si .python-version le demande
-uv run version_pypi.py
-```
-
+- **`uv` introuvable** : rouvrir le terminal ; vérifier l'installation.
+- **Fichier introuvable** : regarder `pwd`, puis `ls`, et vérifier le nom du fichier.
+- **Le message affiché n'a pas changé** : enregistrer le fichier dans l'éditeur,
+  puis relancer la commande.
+- **Le terminal affiche `>>>`** : vous êtes dans Python. Taper `exit()` pour
+  revenir au terminal, puis saisir la commande `uv run ...`.
+- **Problème de réseau** : appeler l'enseignant. Les
+  [sorties de secours](manip/sorties-sans-reseau.md) permettent d'observer les
+  résultats des manipulations de paquets, puis de les refaire une fois connecté.
