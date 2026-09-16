@@ -4,8 +4,8 @@
 Marcu-Andria Battesti · Bachelor CLIC · 2026-2027
 
 > Neuf travaux dirigés sur trois séances, tous sur machine. Dans
-> `algo3/`, venv activé, un dossier `chapitre3/` avec le **contenu** de `manip/` copié à côté
-> de vos programmes.
+> `algo3/` (le projet uv du chapitre 1), avec `uv run`, un dossier `chapitre3/`
+> avec le **contenu** de `manip/` copié à côté de vos programmes.
 > Vos `tris.py` et `recursif.py` du chapitre 2 servent tels quels ;
 > `manip/tris_ch2.py` en secours.
 >
@@ -172,11 +172,12 @@ double de la précédente, la plus grande sous une seconde. Pour `f4`,
 
 ## Étape 1 - Exact
 
-Les jeux de référence du chapitre sont disponibles dans `jeux_tris.py`.
-La graine y est posée **une seule fois par série**, puis les tailles sont
-tirées dans l'ordre. Ne pas la reposer avant chaque taille : les comptes
-individuels changeraient. Les séries pour la sélection et pour la fusion
-utilisent des intervalles différents ; comparer les tris sur la même série.
+Ce TD mesure sur `liste_aleatoire(n)` de `chrono.py` : toujours la même
+liste pour un n donné. Pour retrouver les compteurs du chapitre 2 (8 706
+comparaisons de la fusion sur 1 000, par exemple), `jeux_tris.py` rejoue
+ses listes : la graine y est posée **une seule fois par série**, puis les
+tailles sont tirées dans l'ordre. Ne pas la reposer avant chaque taille :
+les comptes changeraient.
 
 1. `tri_selection` sur `liste_aleatoire(n)` pour n = 10, 100, 1 000 :
    vérifiez n(n-1)/2 au compteur, exactement.
@@ -445,7 +446,7 @@ Reprendre `identifiants` et les requêtes d’identifiants du TD 7,
 ## Partie A - lent.py
 
 ```bash
-python manip/lent.py
+uv run lent.py
 ```
 
 1. Les trois temps. Laquelle des trois parties d'abord ?

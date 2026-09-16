@@ -8,7 +8,7 @@ Marcu-Andria Battesti · Bachelor CLIC · 2026-2027
 > **le même jeu de données**, et pour finir un tableau : lequel, dans
 > quel cas.
 >
-> Dans `algo3/chapitre3/`, venv activé, `manip/chrono.py` à côté. Votre
+> Dans `algo3/chapitre3/`, avec `uv run`, `chrono.py` à côté. Votre
 > `tris.py` du chapitre 2 (sélection, insertion, fusion) ou
 > `manip/tris_ch2.py` en secours.
 >

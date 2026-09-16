@@ -5,7 +5,7 @@
 #   tableau(tri_insertion, [100, 1000, 10000]) → n, temps, et le rapport d'une ligne à l'autre
 #
 # Le générateur par défaut fabrique une liste d'entiers aléatoires de taille n,
-# toujours la même pour un n donné (graine fixe) : deux binômes mesurent la
+# toujours la même pour un n donné (graine fixe) : deux étudiants mesurent la
 # même liste, seule la machine change.
 import random
 import time
