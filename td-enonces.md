@@ -11,6 +11,11 @@ Marcu-Andria Battesti · Bachelor CLIC · 2026-2027
 > `communes.csv`, `trace_factorielle.py` et `labyrinthe.txt` à côté de vos fichiers, pas dans un
 > sous-dossier. Le REPL pour une ligne, un fichier `.py` dès trois lignes.
 >
+> Les autres fichiers nommés dans les TD (`parcours.py`, `cantons.py`,
+> `tris_python.py`, `tris.py`, `recherche.py`, `recursif.py`) ne sont pas
+> fournis : ce sont les vôtres. Créez chacun, vide, dans `chapitre2/` au
+> moment où le TD le demande.
+>
 > **Méthode** : lisez d’abord l’exemple du [cours](cours.md), faites une
 > trace à la main, complétez la partie guidée, puis écrivez votre solution.
 > Pour une trace, notez les valeurs **après** chaque instruction ou tour.
