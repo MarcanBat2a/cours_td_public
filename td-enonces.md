@@ -3,52 +3,56 @@
 **UE 0 - Algo 3 avec Python · Chapitre 4**
 Marcu-Andria Battesti · Bachelor CLIC · 2026-2027
 
-> Neuf travaux dirigés sur trois séances, sur machine sauf mention. Dans
-> `algo3/` (le projet uv du chapitre 1), avec `uv run`, un dossier
-> `chapitre4/` avec le **contenu** de `manip/` copié à côté de vos
-> programmes. Pas encore de projet `algo3/` : `uv init --no-package algo3`,
-> puis `cd algo3`.
->
-> Dans `manip/`, rien à apporter des chapitres précédents : `routes.csv`,
-> les 32 routes entre les 24 communes du module, avec leur longueur en
-> kilomètres ; `communes.py`, les 24 communes ; `labyrinthe.txt`, celui du
-> chapitre 2 ; `chrono.py`, celui du chapitre 3 ; `grilles.py`, qui
-> fabrique des graphes de la taille qu'on veut ; `dependances.py`, ce
-> qu'uv installe au chapitre 1.
->
-> Les fonctions qui resservent d'un TD à l'autre (`charger_routes`,
-> `voisins`, `km`, `profondeur`, `largeur`, `chemin`, `dijkstra`...) vont
-> dans un fichier `graphes.py` ; vos essais dans `td1.py`, `td2.py`..., qui
-> commencent par `from graphes import ...`. Depuis `chapitre4/` :
-> `uv run td1.py`.
-> Les imports nécessaires aux fonctions (`csv`, `deque`, `heappop`, `heappush`) et
-> `INF = float("inf")` vont aussi dans `graphes.py`. Dans chaque script
-> d'essai, rechargez `g` et recalculez les résultats utilisés : les
-> variables de `td1.py` ne sont pas partagées automatiquement avec `td2.py`.
->
-> **Le pronostic avant la mesure**, sur la fiche. Les temps varient d'un
-> poste à l'autre ; comparez surtout les rapports et leur tendance.
->
-> **★** : les questions dont la réponse doit tenir en une phrase juste ou
-> un calcul propre.
->
-> **Bonus** : pour qui a fini avant la correction ; sinon en
-> démonstration, ou chez soi. Aucune étape de la suite n'en dépend.
+Neuf TD sur trois séances. Chaque TD contient deux ou trois étapes.
+Le paragraphe **Résultat attendu** indique ce que vous devez présenter à
+la correction. Les bonus sont facultatifs ; la suite n'en dépend pas.
+
+## Préparer les fichiers
+
+Ouvrez votre projet `algo3/`. Si vous ne l'avez pas encore, créez-le avec
+`uv init --no-package algo3`, puis entrez dedans avec `cd algo3`.
+
+Créez un dossier `chapitre4/` dans ce projet. Copiez-y **le contenu** du
+dossier `manip/` de cette branche GitHub. Créez aussi un fichier vide
+`graphes.py`. Vous créerez `td1.py`, puis `td2.py`, etc., au début de
+chaque TD : ces fichiers ne sont pas fournis.
+
+```text
+algo3/
+├── pyproject.toml
+└── chapitre4/
+    ├── graphes.py          # vos fonctions réutilisées entre les TD
+    ├── td1.py              # vos essais du TD 1, puis td2.py, etc.
+    ├── routes.csv
+    ├── communes.py
+    ├── communes.csv
+    ├── dependances.py
+    ├── grilles.py
+    ├── chrono.py
+    ├── labyrinthe.py
+    └── labyrinthe.txt
+```
+
+- Dans `graphes.py`, ajoutez les fonctions et les imports demandés, en
+  conservant ceux des TD précédents. N'y mettez pas vos essais ni vos `print`.
+- Dans `td1.py`, `td2.py`, etc., placez les essais du TD concerné. Une
+  variable créée dans un fichier n'est pas disponible dans les autres :
+  les blocs de démarrage ci-dessous rechargent les données nécessaires.
+- Pour lancer un essai, placez-vous dans `algo3/chapitre4/`, puis tapez
+  `uv run td1.py`, en remplaçant le numéro par celui du TD.
+- Notez les réponses écrites, tableaux et résultats dans `reponses.md`
+  ou sur papier, en indiquant le numéro du TD et de l'étape.
+
+Les blocs marqués **Code fourni** sont à recopier. Lorsqu'une fonction
+est à écrire, la consigne précise ses paramètres et ce qu'elle doit
+**renvoyer**. Renvoyer avec `return` et afficher avec `print` sont deux
+opérations différentes.
 
 Le [cours Google Slides](https://docs.google.com/presentation/d/1DY6Ydij2eapXi6QLVJx4quNBKjpL9AeifFiobzH4SA0/edit)
-présente les algorithmes sur un petit graphe. Les TD les appliquent aux
-routes et ajoutent les informations nécessaires pour retrouver les chemins :
-
-| Fonction | Dans les slides | Dans les TD et le mémo |
-| --- | --- | --- |
-| `profondeur` | liste des sommets dans l'ordre de visite, avec récursion | même résultat, avec une pile explicite au TD 4 |
-| `largeur` | liste des sommets dans l'ordre de visite | `(dist, parent)` au TD 5 : distances en étapes et prédécesseurs du chemin |
-| `dijkstra` | dictionnaire des distances en poids | `(dist, parent)` au TD 8 : mêmes distances, plus les prédécesseurs du chemin |
-
-Pour `largeur`, seuls les sommets atteignables figurent dans `dist`.
-Pour Dijkstra, tous les sommets y figurent et les inaccessibles restent
-à `INF`, comme dans les slides. Dans les deux cas, `parent` contient
-seulement les sommets atteignables, avec `None` pour le départ.
+présente les algorithmes sur de petits graphes. Dans les TD,
+`profondeur` renvoie toujours l'ordre de visite. `largeur` et `dijkstra`
+ajoutent les parents pour reconstruire les chemins : leurs résultats
+sont expliqués au moment de leur utilisation.
 
 ---
 
@@ -56,166 +60,232 @@ seulement les sommets atteignables, avec `None` pour le départ.
 
 # TD 1 - Trois situations
 
-**Sur papier, puis sur machine**
+**Objectif : reconnaître les sommets et les arêtes d'un graphe.**
 
-## Étape 1 - Un canton *(sur papier)*
+## Étape 1 - Dessiner les routes du canton *(sur papier)*
 
-Dans `routes.csv`, les routes dont les deux communes sont du canton
-**Plateau** (Bucchiniccia, Erbaghjolu, Ghjuncaghju, Ortoli, Scandulaghju,
-Ulmetu Vecchiu).
+Ouvrez `routes.csv`. Chaque ligne décrit une route à double sens avec
+ses deux communes et sa longueur en kilomètres.
 
-1. Dessinez-les : un point par commune, un trait par route, la longueur
-   sur le trait. Gardez le dessin : il sert au TD 7.
-2. Le degré de chaque commune (son nombre de routes).
-3. ★ Six communes, combien de routes ? Pour les relier toutes sans
-   cycle, combien en faudrait-il ? Combien de routes y a-t-il en plus ?
+Dessinez uniquement les routes dont **les deux extrémités** appartiennent
+à cette liste : Bucchiniccia, Erbaghjolu, Ghjuncaghju, Ortoli,
+Scandulaghju et Ulmetu Vecchiu. Ces six communes forment le canton Plateau.
+Représentez chaque commune par un point et chaque route par un trait
+portant sa longueur.
 
-## Étape 2 - Deux autres situations *(sur papier)*
+**Résultat attendu :** un dessin avec les six noms et les distances.
+Gardez-le : vous l'utiliserez au TD 7.
 
-Le labyrinthe du chapitre 2 (`labyrinthe.txt`) et ce qu'uv installe
-(`dependances.py`).
+## Étape 2 - Décrire trois graphes *(sur papier)*
 
-| Situation | Sommets | Arêtes | Orienté ? | Pondéré ? | La question qu'on pose |
-| --- | --- | --- | --- | --- | --- |
-| les routes | les communes | les routes | non | oui, km | |
-| le labyrinthe | | | | | |
-| les paquets | | | | | |
+Complétez les cases vides du tableau. Pour « Orienté », écrivez oui ou
+non ; pour « Poids », indiquez ce que mesure le poids, ou « aucun ».
+Les problèmes à résoudre sont déjà donnés.
 
-1. Remplissez les cinq premières colonnes.
-2. ★ La dernière colonne : pour chaque situation, la question qu'on
-   voudrait poser au graphe. Une phrase chacune.
-3. ★ Pourquoi les dépendances sont-elles orientées et pas les routes ?
-   Donnez une situation de routes qui devrait l'être.
+Dans `labyrinthe.txt`, `#` représente un mur, `.` une case libre et `D`
+le départ. On se déplace d'une case vers une case voisine horizontalement
+ou verticalement. Dans `dependances.py`, `DEPEND_DE[p]` contient les
+paquets nécessaires au paquet `p` : la flèche signifie « dépend de ».
 
-## Étape 3 - Lire le fichier *(sur machine)*
+| Problème | Sommets | Arêtes | Orienté | Poids |
+| --- | --- | --- | --- | --- |
+| Trouver un trajet routier en kilomètres | communes | routes | non | distance en km |
+| Trouver un trajet dans le labyrinthe | | | | |
+| Placer chaque paquet après ses prérequis dans une liste | | | | |
+
+**Résultat attendu :** les deux lignes complétées. Aucun programme à
+écrire à cette étape.
+
+## Étape 3 - Compter les données *(sur machine)*
+
+**Code fourni**, à placer au début de `td1.py` :
 
 ```python
 import csv
+
 with open("routes.csv", encoding="utf-8") as f:
-    routes = [(l["depart"], l["arrivee"], int(l["km"])) for l in csv.DictReader(f)]
+    routes = [
+        (ligne["depart"], ligne["arrivee"], int(ligne["km"]))
+        for ligne in csv.DictReader(f)
+    ]
 ```
 
-1. Combien de routes ? Combien de communes distinctes y apparaissent ?
-   Les 24 du module y sont-elles toutes (`communes.py`) ?
-2. Pour chaque commune, le nombre de routes qui la touchent, sans autre
-   structure qu'un dictionnaire de compteurs. Laquelle en a le plus ?
-3. ★ Deux communes n'ont qu'une route. Lesquelles ? Que peut-on
-   soupçonner, sans encore pouvoir le prouver ?
+Complétez ce fichier pour afficher le nombre de routes et le nombre de
+communes **distinctes**. Pour le second compte, ajoutez les deux
+extrémités de chaque route dans un ensemble (`set`).
+
+**Résultat attendu :** deux lignes de sortie clairement nommées :
+« Nombre de routes » et « Nombre de communes ».
 
 ---
 
 # TD 2 - Construire
 
-**Sur machine**
+**Objectif : représenter les routes en Python et utiliser cette représentation.**
 
-## Étape 1 - Le dictionnaire
+## Étape 1 - Charger les routes
 
-`charger_routes(chemin)` renvoie un dictionnaire commune → {voisine :
-km}. Une route non orientée s'écrit dans les deux sens.
-Dans les slides, `g[s]` est une liste de voisins pour le graphe non
-pondéré, puis un dictionnaire voisin → poids pour le graphe pondéré.
-Nous utilisons cette seconde forme : `for v in g[s]` parcourt ses clés,
-donc les voisins ; `g[s].items()` donne aussi les poids.
+Dans `graphes.py`, écrivez `charger_routes(chemin)` : son paramètre est
+le nom du fichier CSV et son résultat est un dictionnaire de la forme
+`{commune: {voisine: distance}}`. Ajoutez `import csv` en tête du fichier.
+Vous pouvez reprendre la lecture du CSV du TD 1.
 
-1. Écrivez-la. `g["Isulacciu"]` ? `len(g)` ?
-2. `degre(g, s)` en une ligne. Le degré maximal, le minimal, la somme
-   de tous les degrés.
-3. ★ La somme des degrés vaut le double du nombre de routes. Pourquoi,
-   toujours ?
+Pour chaque route de `a` vers `b` de distance `d`, créez les dictionnaires
+de `a` et de `b` s'ils n'existent pas, puis enregistrez `g[a][b] = d`
+**et** `g[b][a] = d`. La fonction se termine par `return g`.
 
-## Étape 2 - La matrice, et sa place
+**Code de vérification fourni**, à placer dans `td2.py` :
 
-L'autre rangement : les communes dans l'ordre alphabétique, numérotées de
-0 à 23, et `m[i][j]` = la longueur de la route entre i et j, 0 sinon.
-Les routes du fichier ont des poids strictement positifs : 0 peut donc
-désigner une absence de route. Sans la construire :
+```python
+from graphes import charger_routes
 
-1. Combien de cases ? Combien de non nulles ? Et dans `g` : combien de
-   clés, combien de voisines rangées en tout ?
-2. ★ Place occupée par les deux rangements, en fonction de n et m. Pour
-   les 36 000 communes de France et leurs 100 000 routes : combien de
-   cases pour la matrice ? Quand la matrice vaut-elle le coup ?
+g = charger_routes("routes.csv")
+assert len(g) == 24
+assert g["Isulacciu"] == {"Caldarella": 6, "Finosella": 14}
+assert g["Caldarella"]["Isulacciu"] == 6
+print("Chargement validé")
+```
 
-## Étape 3 - Trois fonctions
+Un `assert` qui échoue signale un résultat différent de celui attendu.
 
-1. `voisins(g, s)` : les voisines de `s`, **dans l'ordre alphabétique**.
-   Tout le chapitre l'utilise : chacun doit visiter dans le même ordre.
-   Avec `sorted`, trier d voisines coûte O(d log d) au pire ; les
-   parcourir sans les trier coûte O(d).
-2. `existe_route(g, a, b)` et `km(g, a, b)`. Coût de chacune ?
-3. ★ `dependances.py` : `DEPEND_DE["requests"]` se lit en O(1). Qui a
-   besoin de `mdurl` ? Écrivez `depend_de_moi(dep, p)` : son coût, et le
-   dictionnaire à construire une fois pour répondre en O(1).
+**Résultat attendu :** la fonction dans `graphes.py` et le message
+« Chargement validé » à l'exécution de `td2.py`.
+
+## Étape 2 - Accéder aux voisins et aux distances
+
+Ajoutez ces **deux fonctions** dans `graphes.py` :
+
+| Fonction à écrire | Paramètres | Valeur à renvoyer |
+| --- | --- | --- |
+| `voisins(g, s)` | un graphe et une commune présente dans le graphe | la liste des communes voisines de `s`, triée avec `sorted` |
+| `km(g, a, b)` | un graphe et deux communes reliées par une route | la distance de cette route |
+
+Dans notre représentation, `g[s]` est un dictionnaire. Le parcourir donne
+ses clés, donc les voisins ; `g[s].items()` donne les voisins **et** les poids.
+Toutes les visites des TD utilisent l'ordre alphabétique de `voisins`.
+
+Ajoutez ces vérifications dans `td2.py` :
+
+```python
+from graphes import voisins, km
+
+assert voisins(g, "Isulacciu") == ["Caldarella", "Finosella"]
+assert km(g, "Isulacciu", "Caldarella") == 6
+print("Accès aux routes validé")
+```
+
+**Résultat attendu :** les deux fonctions et un script qui passe les
+vérifications sans erreur.
+
+## Étape 3 - Comparer l'espace occupé *(sur papier)*
+
+Une matrice d'adjacence réserve une case pour chaque paire de communes.
+Le dictionnaire réserve une entrée par commune et deux entrées par route,
+car nos routes sont à double sens. Ici, n = 24 communes et m = 32 routes.
+
+Complétez le tableau en comptant des **entrées**, pas des octets. Pour
+le dictionnaire, comptez les clés du dictionnaire principal et les
+entrées des dictionnaires de voisins.
+
+| Représentation | Nombre d'entrées avec n sommets et m arêtes | Valeur pour nos routes |
+| --- | --- | --- |
+| Matrice | | |
+| Dictionnaire d'adjacence non orienté | | |
+
+**Résultat attendu :** le tableau complété et une phrase indiquant la
+représentation qui réserve le moins d'entrées pour ces données.
 
 ## Bonus - Construire la matrice
 
-1. Construisez `m` depuis `g`. Vérifiez vos deux comptes de l'étape 2.
-2. `voisins_matrice(m, i)` : la liste des j tels que `m[i][j] > 0`. Son
-   coût, en fonction de n ? Celui d'un parcours de `g[s]`, sans tri ?
+Dans `td2.py`, construisez une liste de listes `matrice` de taille
+24 × 24 à partir de `g`. Les lignes et colonnes suivent `noms = sorted(g)`.
+La case `[i][j]` contient la distance de la route, ou 0 s'il n'y en a pas.
+Ce marqueur est possible ici car toutes les routes ont un poids strictement positif.
+
+**Résultat attendu :** une matrice symétrique et un affichage du nombre
+de cases non nulles.
 
 ---
 
 # TD 3 - La bibliothèque
 
-**Sur machine**
+**Objectif : vérifier votre graphe avec NetworkX.**
 
-## Étape 1 - Installer, épingler
+## Étape 1 - Installer NetworkX
 
-Dans `algo3/` :
+Depuis le dossier `algo3/`, exécutez :
 
 ```bash
 uv add networkx
 uv tree
-grep -A1 'name = "networkx"' uv.lock
 ```
 
-1. Ce que `uv add` a écrit dans `pyproject.toml`, et ce que `uv.lock` a
-   noté. Un commit des deux.
-2. `uv tree` : combien de dépendances sous `networkx` ? Comparez avec
-   `requests` au chapitre 1.
-3. ★ Pourquoi commiter `uv.lock`, en une phrase - celle du chapitre 1.
+Ouvrez `pyproject.toml` et `uv.lock`. Recopiez dans vos réponses la ligne
+qui déclare NetworkX dans le premier et sa version exacte dans le second.
+Enregistrez les deux fichiers dans un commit de **votre projet** :
 
-## Étape 2 - Le même graphe
+```bash
+git add pyproject.toml uv.lock
+git commit -m "Ajouter NetworkX pour le chapitre Graphes"
+```
+
+Le fichier `uv.lock` permet de réinstaller les mêmes versions.
+Revenez ensuite dans `algo3/chapitre4/` pour lancer vos programmes.
+
+**Résultat attendu :** les deux informations relevées et le commit.
+
+## Étape 2 - Convertir le graphe
+
+**Code fourni**, à ajouter dans `graphes.py`. Cette fonction convertit
+notre graphe de routes non orientées en objet NetworkX. Elle sera réutilisée.
 
 ```python
 import networkx as nx
-from dependances import DEPEND_DE
-from graphes import charger_routes
 
-g = charger_routes("routes.csv")
-G = nx.Graph()
-G.add_nodes_from(g)
-for a in g:
-    for b, d in g[a].items():
-        G.add_edge(a, b, km=d)
+def vers_networkx(g):
+    G = nx.Graph()
+    G.add_nodes_from(g)
+    for a, adjacents in g.items():
+        for b, distance in adjacents.items():
+            G.add_edge(a, b, km=distance)
+    return G
 ```
 
-Chaque route est lue deux fois ; `nx.Graph` conserve une seule arête
-non orientée entre a et b.
+Créez `td3.py` avec ce bloc :
 
-1. `G.number_of_nodes()`, `G.number_of_edges()`. Les mêmes qu'au TD 1 ?
-2. `G.degree("Ulmetu Vecchiu")`, `sorted(G.neighbors("Isulacciu"))`,
-   `G["Isulacciu"]["Caldarella"]["km"]`. Comparez à vos fonctions du TD 2,
-   sur trois communes.
-3. `D = nx.DiGraph(DEPEND_DE)`. `D.out_degree("requests")`,
-   `D.in_degree("mdurl")`, `list(D.predecessors("mdurl"))`. Retrouvez
-   votre `depend_de_moi`.
+```python
+from graphes import charger_routes, vers_networkx
 
-## Étape 3 - Une question
+g = charger_routes("routes.csv")
+G = vers_networkx(g)
+print("Sommets :", G.number_of_nodes())
+print("Arêtes :", G.number_of_edges())
+```
 
-Un graphe non orienté est **connexe** si un chemin relie toute paire
-de sommets. Une **composante connexe** est un groupe maximal de sommets
-reliés entre eux ; aucun chemin ne le relie aux autres composantes.
+Exécutez-le et comparez les deux nombres à ceux du TD 1. Une route est
+lue dans les deux sens, mais `nx.Graph` conserve une seule arête entre
+les deux communes.
 
-1. `nx.is_connected(G)`. Puis `[len(c) for c in nx.connected_components(G)]`.
-2. ★ La bibliothèque répond en une ligne. Le TD 4 vous fera écrire ce
-   qu'elle a fait pour répondre. Sans le savoir encore : comment
-   prouveriez-vous que deux communes ne sont reliées à rien d'autre ?
+**Résultat attendu :** les deux nombres et une indication « identiques »
+ou « différents » par rapport au TD 1. Corrigez le chargement s'ils diffèrent.
 
-## Bonus - La densité
+## Étape 3 - Identifier les composantes
 
-`nx.density(G)` : la part des paires de communes reliées par une route.
-Recalculez-la à la main : m divisé par le nombre de paires.
+Un graphe non orienté est **connexe** si un chemin relie toute paire de
+sommets. Une **composante connexe** regroupe tous les sommets reliés entre
+eux ; aucun chemin ne la relie à une autre composante.
+
+Ajoutez ce code dans `td3.py` :
+
+```python
+import networkx as nx
+
+print("Connexe :", nx.is_connected(G))
+print("Tailles des composantes :", sorted(len(c) for c in nx.connected_components(G)))
+```
+
+**Résultat attendu :** les deux lignes de sortie et une phrase expliquant
+si toutes les communes sont accessibles les unes depuis les autres.
 
 ---
 
@@ -223,13 +293,11 @@ Recalculez-la à la main : m divisé par le nombre de paires.
 
 # TD 4 - En profondeur
 
-**Sur machine**
+**Objectif : parcourir un graphe et comparer récursion et pile explicite.**
 
-## Étape 1 - Récursif
+## Étape 1 - Exécuter le parcours récursif
 
-On reprend la récursion du cours en passant explicitement `vus` et
-`ordre` à la fonction `explorer`. Après sa définition, appelez-la avec
-un ensemble et une liste vides : elle les remplit, sans les renvoyer.
+**Code fourni**, à ajouter dans `graphes.py` :
 
 ```python
 def explorer(g, s, vus, ordre):
@@ -241,13 +309,29 @@ def explorer(g, s, vus, ordre):
         explorer(g, v, vus, ordre)
 ```
 
-1. Depuis Isulacciu : l'ordre de visite, les huit premières communes.
-   Combien de communes atteintes ? Lesquelles manquent ?
-2. Depuis Diavulinu ? Depuis Ortoli ?
-3. ★ Ce que `vus` empêche. Mettez les deux premières lignes d'`explorer`
-   en commentaire, le temps d'un essai : que dit Python, et pourquoi ?
+`explorer` remplit l'ensemble `vus` et la liste `ordre` passés en
+paramètres. Elle ne renvoie pas de résultat. Créez `td4.py` avec :
 
-## Étape 2 - Avec une pile
+```python
+from graphes import charger_routes, explorer
+
+g = charger_routes("routes.csv")
+vus, ordre = set(), []
+explorer(g, "Isulacciu", vus, ordre)
+print("Huit premières communes :", ordre[:8])
+print("Nombre de communes atteintes :", len(vus))
+print("Communes inaccessibles :", sorted(set(g) - vus))
+```
+
+Exécutez ce programme. En lisant `explorer`, expliquez en une phrase
+pourquoi le test `if s in vus` empêche de tourner en rond.
+
+**Résultat attendu :** les trois sorties et cette phrase d'explication.
+
+## Étape 2 - Remplacer la récursion par une pile
+
+**Code fourni**, à ajouter dans `graphes.py`. Cette version renvoie la
+liste des sommets dans leur ordre de visite.
 
 ```python
 def profondeur(g, s):
@@ -263,44 +347,60 @@ def profondeur(g, s):
     return ordre
 ```
 
-1. Depuis Isulacciu : même ensemble qu'à l'étape 1 ? Même ordre ?
-2. `from grilles import grille` ; `g50 = grille(50)` (2 500 sommets).
-   `explorer(g50, (0, 0), set(), [])` : que dit Python ? Et
-   `profondeur(g50, (0, 0))` ?
-3. ★ Pourquoi la pile fait-elle le même travail que la récursion, sans
-   sa limite ? (Le chapitre 2 a donné la limite.)
+Ajoutez ce code dans `td4.py`, après celui de l'étape 1 :
 
-## Étape 3 - Le labyrinthe, et la classe
+```python
+from graphes import profondeur
+from grilles import grille
 
-1. `labyrinthe.txt` en graphe : un sommet par case libre `(i, j)`, une
-   arête entre deux cases libres voisines. Combien de sommets ? D'arêtes ?
-2. `profondeur` depuis la case `D`. Combien de cases atteintes ? Lesquelles
-   manquent ? (Le bonus « Le labyrinthe » du chapitre 2 posait la même
-   question.)
-3. ★ La classe de `profondeur`, en lisant son code : combien de fois
-   chaque sommet est-il marqué ? Chaque arête regardée ?
-   Distinguez le parcours du tri dans `voisins` : le degré est au plus
-   4 sur les routes et les grilles de ce chapitre, mais peut grandir
-   dans un autre graphe.
+assert profondeur(g, "Isulacciu") == ordre
 
-## Bonus - Au chronomètre
+g50 = grille(50)  # 50 × 50 cases, soit 2 500 sommets
+try:
+    explorer(g50, (0, 0), set(), [])
+    print("Récursion terminée")
+except RecursionError:
+    print("Limite de récursion atteinte")
+print("Sommets atteints avec la pile :", len(profondeur(g50, (0, 0))))
+```
 
-`from chrono import chrono`, puis `chrono(profondeur, grille(k), (0, 0))`
-pour k = 100, 200, 400 (10 000, 40 000, 160 000 sommets). Le rapport quand
-n × 4 ? Confirme-t-il la classe de l'étape 3 ?
+**Résultat attendu :** une comparaison de deux lignes : le résultat de
+la version récursive sur la grille et celui de la version avec pile.
+Précisez quelle limite Python explique une éventuelle `RecursionError`.
+
+## Étape 3 - Justifier le coût *(sur papier)*
+
+On note n le nombre de sommets et m le nombre d'arêtes. Avec des listes
+ou dictionnaires d'adjacence, un parcours complet coûte O(n + m), **hors
+tri des voisins**.
+
+Justifiez cette formule en deux phrases : une sur le nombre de fois
+qu'un sommet est marqué, une sur le nombre de fois qu'une arête non
+orientée est lue. Appuyez-vous sur le code de `profondeur`.
+
+`voisins` utilise `sorted`, de coût O(d log d) au pire pour d voisins.
+Sur nos routes et grilles, d ≤ 4 : ce coût reste borné par sommet et
+la classe O(n + m) est conservée. Les slides préparent l'ordre à l'avance.
+
+**Résultat attendu :** les deux phrases qui justifient O(n + m).
+
+## Bonus - Mesurer le parcours
+
+Dans `td4.py`, utilisez `chrono(profondeur, grille(k), (0, 0))` pour
+k = 100, 200 et 400, après `from chrono import chrono`.
+
+**Résultat attendu :** un tableau k / nombre de sommets / durée. Calculez
+le rapport entre deux durées successives et comparez-le à 4.
 
 ---
 
 # TD 5 - En largeur
 
-**Sur machine**
+**Objectif : trouver un chemin qui utilise le moins de routes possible.**
 
-## Étape 1 - La file
+## Étape 1 - Calculer les distances en étapes
 
-La largeur du cours renvoie l'ordre de visite. Ici, on mémorise aussi
-la distance en étapes et le parent qui permettra de retrouver un chemin.
-`dist` remplace `vus` : un sommet y entre dès son ajout dans la file.
-La fonction renvoie donc deux dictionnaires : `dist, parent = largeur(g, s)`.
+**Code fourni**, à ajouter dans `graphes.py` :
 
 ```python
 from collections import deque
@@ -317,102 +417,120 @@ def largeur(g, s):
     return dist, parent
 ```
 
-1. Depuis Isulacciu : les communes à 1 étape, à 2, à 3. La plus
-   lointaine, en étapes.
-2. L'ordre de visite (ajoutez une liste `ordre`). Comparez aux huit
-   premières du TD 4 : ce qui change, et pourquoi.
-3. ★ Une pile visite « le dernier arrivé », une file « le premier
-   arrivé ». Pourquoi est-ce la file qui donne les distances ?
+La largeur des slides renvoie l'ordre de visite. Ici, on renvoie deux
+dictionnaires : `dist[v]` est le nombre minimal de routes pour atteindre
+`v`, et `parent[v]` est la commune depuis laquelle on l'a découverte.
+Le départ a pour parent `None`. Un sommet inaccessible est absent des deux.
 
-## Étape 2 - Le chemin
+Créez `td5.py` avec :
 
-`chemin(parent, s)` : remonter de `s` à la racine par les parents, et
-renverser. On l'appelle seulement si `s in parent` ; sinon, le sommet
-est inaccessible et aucun chemin ne peut être reconstruit.
+```python
+from graphes import charger_routes, largeur
 
-1. Le chemin d'Isulacciu à Scandulaghju. Combien d'étapes ?
-2. Sa longueur en kilomètres, avec `km(g, a, b)` du TD 2.
-3. ★ Est-ce le chemin le plus court en kilomètres ? Regardez les
-   kilomètres de chaque étape : laquelle pèse le plus ? Cherchez à la
-   main, dans `g`, un chemin qui l'évite. Gardez la question pour la
-   séance 3.
+g = charger_routes("routes.csv")
+dist, parent = largeur(g, "Isulacciu")
+for etape in (1, 2, 3):
+    communes = sorted(s for s in dist if dist[s] == etape)
+    print(etape, communes)
+```
 
-## Étape 3 - Vérifier
+Exécutez-le. Expliquez en une phrase pourquoi une file traite toutes les
+communes à distance d avant celles à distance d + 1.
 
-1. `nx.shortest_path(G, "Isulacciu", "Scandulaghju")` : le même chemin ?
-   `nx.single_source_shortest_path_length(G, "Isulacciu")` : les mêmes
-   distances que votre `dist` ?
-2. ★ Une liste avec `pop(0)` à la place de la `deque` avec `popleft()` :
-   quel coût caché du chapitre 3 ? Pourquoi `deque` ?
+**Résultat attendu :** les communes à une, deux et trois étapes du départ,
+et la phrase d'explication.
 
-## Bonus - Au chronomètre
+## Étape 2 - Retrouver un chemin
 
-`chrono(largeur, grille(k), (0, 0))` pour k = 100, 200, 400. Rapports,
-classe. La même mesure pour `profondeur` : lequel des deux parcours est
-le plus rapide ?
+Dans `graphes.py`, écrivez `chemin(parent, arrivee)`. La fonction doit
+**renvoyer une liste** allant du départ à l'arrivée, les deux compris.
+Partez de `arrivee`, suivez les parents jusqu'à `None`, puis inversez la
+liste obtenue. On suppose que l'arrivée figure dans `parent`.
+
+Ajoutez ce code de vérification dans `td5.py` :
+
+```python
+from graphes import chemin, km, vers_networkx
+import networkx as nx
+
+trajet = chemin(parent, "Scandulaghju")
+distance_km = sum(km(g, a, b) for a, b in zip(trajet, trajet[1:]))
+print("Trajet :", trajet)
+print("Nombre de routes :", len(trajet) - 1)
+print("Distance en km :", distance_km)
+G = vers_networkx(g)
+assert len(trajet) - 1 == nx.shortest_path_length(G, "Isulacciu", "Scandulaghju")
+```
+
+`zip(trajet, trajet[1:])` énumère les paires de communes consécutives.
+La largeur minimise le **nombre de routes** ; elle ne regarde pas les
+kilomètres. Le TD 7 permettra de comparer les deux critères.
+
+**Résultat attendu :** la fonction et les trois lignes de sortie.
+Conservez ce résultat pour la comparaison du TD 7.
 
 ---
 
 # TD 6 - L'arbre
 
-**Sur machine**
+**Objectif : lire et parcourir l'arbre produit par la largeur.**
 
-## Étape 1 - L'arbre des parents
+## Étape 1 - Afficher l'arbre des parents
 
-Les `parent` du TD 5, depuis Isulacciu, retournés : `enfants[p]` = la
-liste des sommets dont le parent est `p`.
-Dans `td6.py`, rechargez les routes et recalculez
-`_, parent = largeur(g, "Isulacciu")`. Construisez `enfants` et gardez
-les fonctions `afficher`, `taille` et `hauteur` dans ce même fichier :
-elles utilisent ce dictionnaire.
+Créez `td6.py` avec ce **code fourni** :
 
-Dans cet arbre, **Isulacciu est la racine**. Chaque autre sommet a un
-parent, ses enfants sont les sommets découverts depuis lui. Sa
-**profondeur** est le nombre d'arêtes depuis la racine. Une **feuille**
-n'a pas d'enfant ; la **hauteur** de l'arbre est la profondeur maximale.
+```python
+from graphes import charger_routes, largeur
 
-1. `afficher(s, niveau)` : `s` indenté de `niveau` espaces, puis ses
-   enfants, à `niveau + 2`. Lancez depuis Isulacciu. C'est un parcours
-   **préfixe**.
-2. Les feuilles : les sommets sans enfant. Combien ? La hauteur : la
-   profondeur maximale. Quelle valeur du TD 5 retrouvez-vous ?
-3. ★ Pourquoi cette structure est-elle un arbre ? Trois mots : sommets,
-   arêtes, cycle. Comptez les arêtes.
+g = charger_routes("routes.csv")
+dist, parent = largeur(g, "Isulacciu")
+enfants = {}
+for sommet, p in parent.items():
+    if p is not None:
+        enfants.setdefault(p, []).append(sommet)
+```
 
-## Étape 2 - Postfixe
+`enfants[p]` contient les communes dont le parent est `p`. Isulacciu est
+la **racine** ; une commune sans enfant est une **feuille**.
 
-Un traitement **préfixe** se fait avant les appels aux enfants ; un
-traitement **postfixe** se fait après leur retour. Pour calculer une
-taille ou une hauteur, il faut d'abord les résultats des enfants.
+Dans **ce même fichier `td6.py`**, écrivez `afficher(s, niveau=0)`.
+Elle doit afficher `s`, précédé de `niveau` espaces, puis appeler
+`afficher(enfant, niveau + 2)` pour chaque enfant, dans l'ordre alphabétique.
+`enfants.get(s, [])` donne une liste vide pour une feuille.
+Lancez ensuite `afficher("Isulacciu")`.
 
-1. `taille(s)` : le nombre de sommets du sous-arbre de `s` - 1 plus la
-   somme des tailles des enfants. `taille("Isulacciu")`,
-   `taille("Finosella")`, `taille("Acquaviva")`.
-2. `hauteur(s)` : 0 pour une feuille, sinon 1 plus la plus grande hauteur
-   d'un enfant.
-3. ★ `compter_cases(i, j)` du labyrinthe (bonus du chapitre 2) : 0 pour
-   un mur ou une case déjà vue, sinon 1 plus la somme des quatre appels
-   voisins. Préfixe ou postfixe ? Pourquoi `afficher` est l'un et `taille`
-   l'autre ?
+Le traitement du sommet avant ses enfants est un parcours **préfixe**.
+Cette structure est un arbre : tous ses sommets sont reliés à la racine,
+et chacun sauf la racine possède exactement une arête vers son parent.
 
-## Étape 3 - Est-ce un arbre ?
+**Résultat attendu :** l'arbre affiché avec deux espaces supplémentaires
+à chaque niveau. Les trois premières lignes doivent montrer Isulacciu,
+Caldarella puis Acquaviva, de plus en plus indentées.
 
-Un graphe non orienté est un arbre s'il est connexe et a exactement
-n - 1 arêtes. Pour un graphe connexe, m - n + 1 compte les **cycles
-indépendants**, pas tous les cycles que l'on peut dessiner.
+## Étape 2 - Calculer la taille et la hauteur
 
-1. Le canton Plateau du TD 1 : n, m, arbre ou pas ? Combien de cycles
-   indépendants ? Montrez-en deux sur le dessin, puis un troisième cycle
-   obtenu en combinant les deux premiers.
-2. ★ `DEPEND_DE` : orienté, sans cycle. Combien de sommets, d'arêtes ?
-   En oubliant le sens des flèches, est-ce un arbre ? Combien de
-   composantes ? Dans le graphe orienté, combien de racines (paquets
-   dont personne ne dépend) ? Le mot qui convient à plusieurs arbres.
+Ajoutez ces deux fonctions dans `td6.py` ; elles utilisent `enfants` :
 
-## Bonus - Les cycles du labyrinthe
+| Fonction | Valeur à renvoyer | Règle de calcul |
+| --- | --- | --- |
+| `taille(s)` | nombre de sommets du sous-arbre de `s`, lui compris | 1 + la somme des tailles de ses enfants |
+| `hauteur(s)` | nombre maximal d'arêtes entre `s` et une feuille de son sous-arbre | 0 pour une feuille, sinon 1 + la plus grande hauteur des enfants |
 
-Les 43 cases atteintes depuis `D` (TD 4), et les arêtes entre elles.
-Arbre ? Combien de cycles indépendants ? Trouvez-les sur la grille.
+Le calcul utilise les résultats des enfants avant de produire celui du
+sommet : c'est un traitement **postfixe**.
+
+**Résultat attendu :** affichez `taille("Isulacciu")`,
+`taille("Finosella")` et `hauteur("Isulacciu")`, avec un libellé pour chaque
+valeur. Vérifiez que la hauteur obtenue est égale à `max(dist.values())`.
+
+## Bonus - Compter les cycles du canton
+
+Reprenez le dessin du TD 1. Un graphe non orienté connexe est un arbre
+s'il a exactement n − 1 arêtes. Dans un graphe connexe, m − n + 1 compte
+les **cycles indépendants**, pas tous les cycles simples possibles.
+
+**Résultat attendu :** comptez n et m pour le canton, déduisez le nombre
+de cycles indépendants et tracez-les de couleurs différentes sur le dessin.
 
 ---
 
@@ -420,26 +538,31 @@ Arbre ? Combien de cycles indépendants ? Trouvez-les sur la grille.
 
 # TD 7 - Le plus court en kilomètres
 
-**Sur papier, puis sur machine**
+**Objectif : appliquer Dijkstra et distinguer distance en étapes et en kilomètres.**
 
-## Étape 1 - À la main *(sur papier)*
+## Étape 1 - Dérouler Dijkstra à la main *(sur papier)*
 
-Le canton Plateau du TD 1, depuis **Ortoli**. Un tableau : une colonne par
-commune, une ligne par tour.
+Utilisez uniquement le canton Plateau dessiné au TD 1, avec **Ortoli**
+comme départ. Recopiez le tableau ci-dessous et ajoutez une ligne par
+tour, jusqu'à ce que les six communes soient fixées.
 
-1. Tour 0 : Ortoli à 0, les autres à ∞. À chaque tour : la commune non
-   fixée la plus proche est **fixée** (entourez-la) ; ses voisines non
-   fixées reçoivent `min(actuelle, fixée + km)`.
-2. L'ordre dans lequel les six communes sont fixées, et leur distance.
-   Deux ont la même : laquelle fixer d'abord ? Est-ce grave ?
-3. ★ Pourquoi la commune la plus proche peut-elle être fixée sans risque ?
-   Que faudrait-il pour que ce soit faux ?
+| Tour | Commune fixée | Ortoli | Ulmetu Vecchiu | Ghjuncaghju | Bucchiniccia | Scandulaghju | Erbaghjolu |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 0 | aucune | 0 | ∞ | ∞ | ∞ | ∞ | ∞ |
 
-## Étape 2 - En Python *(sur machine)*
+À chaque tour, choisissez la commune non fixée de distance provisoire
+minimale. Marquez-la comme fixée. Pour chaque voisine non fixée,
+comparez sa distance actuelle à `distance de la commune fixée + km de la route`
+et gardez le minimum. Recopiez les autres distances sans les changer.
+À égalité, choisissez la première commune dans l'ordre alphabétique.
 
-Comme dans les slides : le départ et tous les voisins sont des clés
-de `g`, et les poids sont finis et positifs ou nuls. On ajoute `parent`
-pour reconstruire un chemin, comme au TD 5.
+**Résultat attendu :** le tableau complet, avec la commune fixée à
+chaque tour et les distances finales. Ajoutez une phrase expliquant
+pourquoi la justification de Dijkstra nécessite des poids positifs ou nuls.
+
+## Étape 2 - Exécuter la version naïve *(sur machine)*
+
+**Code fourni**, à ajouter dans `graphes.py` :
 
 ```python
 INF = float("inf")
@@ -453,61 +576,94 @@ def dijkstra_naif(g, s):
         if dist[x] == INF:
             break
         restants.remove(x)
-        for v, km in g[x].items():
-            if dist[x] + km < dist[v]:
-                dist[v] = dist[x] + km
+        for v, poids in g[x].items():
+            if dist[x] + poids < dist[v]:
+                dist[v] = dist[x] + poids
                 parent[v] = x
     return dist, parent
 ```
 
-1. Depuis Isulacciu : les cinq autres communes les plus proches en km, la plus
-   lointaine. Comparez à la plus lointaine en étapes (TD 5).
-2. Deux communes restent à `INF`. Lesquelles ? Que signifie le `break` ?
-3. ★ n tours, un `min` sur `restants` à chaque tour : la classe ?
+Les poids doivent être finis et positifs ou nuls. Le départ et tous les
+voisins sont des clés de `g`. `dist` contient tous les sommets ; ceux
+qui sont inaccessibles restent à `INF`. `parent` ne contient que les
+sommets atteignables.
 
-## Étape 3 - Deux plus courts *(sur machine)*
+Créez `td7.py` avec :
 
-1. `chemin(parent, "Scandulaghju")` : les communes, le nombre d'étapes,
-   les kilomètres. À côté, le chemin du TD 5.
-2. `nx.dijkstra_path(G, "Isulacciu", "Scandulaghju", weight="km")` et
-   `nx.dijkstra_path_length(...)`. Les mêmes ?
-3. ★ Deux chemins, deux « plus courts ». Une phrase pour chacun : plus
-   court en quoi, trouvé par quel algorithme. Dans quelle situation
-   veut-on l'un, dans quelle situation l'autre ?
+```python
+from graphes import charger_routes, dijkstra_naif
+
+g = charger_routes("routes.csv")
+dist_km, parent_km = dijkstra_naif(g, "Isulacciu")
+print("Distance vers Scandulaghju :", dist_km["Scandulaghju"])
+print("Distance vers Diavulinu :", dist_km["Diavulinu"])
+```
+
+**Résultat attendu :** les deux sorties, en précisant ce que signifie
+`inf` pour la possibilité de rejoindre la commune.
+
+## Étape 3 - Comparer les deux chemins *(sur machine)*
+
+Dans `td7.py`, calculez aussi `dist_etapes, parent_etapes = largeur(g, "Isulacciu")`,
+après avoir importé `largeur`, `chemin` et `km` depuis `graphes`.
+Reconstituez les deux chemins vers Scandulaghju avec `chemin`.
+Pour leurs kilomètres, reprenez le calcul du TD 5.
+
+| Algorithme | Liste des communes du chemin | Nombre de routes | Total en km |
+| --- | --- | --- | --- |
+| Largeur | | | |
+| Dijkstra | | | |
+
+Vérifiez la distance de Dijkstra avec ce **code fourni** :
+
+```python
+from graphes import vers_networkx
+import networkx as nx
+
+G = vers_networkx(g)
+assert dist_km["Scandulaghju"] == nx.dijkstra_path_length(
+    G, "Isulacciu", "Scandulaghju", weight="km"
+)
+```
+
+**Résultat attendu :** le tableau complété et une phrase indiquant ce
+que minimise chaque algorithme.
 
 ---
 
 # TD 8 - La file de priorité
 
-**Sur machine**
+**Objectif : comprendre ce que le tas change dans Dijkstra.**
 
-## Étape 1 - heapq
+## Étape 1 - Observer une file de priorité
 
-Une **file de priorité** retire l'entrée de plus petite priorité.
-`heapq` la représente par un **tas** dans une liste Python : `heappush`
-ajoute une entrée, `heappop` retire la plus petite. Ici, les entrées sont
-des couples `(distance, sommet)`.
+Une file de priorité retire l'entrée de plus petite priorité. `heapq`
+la représente par un **tas**, stocké dans une liste Python. `heappush`
+ajoute une entrée et `heappop` retire la plus petite.
+
+Créez `td8.py` avec ce **code fourni**, puis exécutez-le :
 
 ```python
-import heapq
+from heapq import heappush, heappop
+
 tas = []
-for d, s in [(14, "Finosella"), (6, "Caldarella"), (22, "Petralba"), (6, "Bracciolu")]:
-    heapq.heappush(tas, (d, s))
+entrees = [(14, "Finosella"), (6, "Caldarella"), (22, "Petralba"), (6, "Bracciolu")]
+for distance, commune in entrees:
+    heappush(tas, (distance, commune))
 while tas:
-    print(heapq.heappop(tas))
+    print(heappop(tas))
 ```
 
-1. L'ordre de sortie. Deux entrées à 6 : laquelle sort d'abord, et
-   pourquoi ?
-2. ★ Insérer et retirer le minimum coûtent log n dans un tas. Sur une
-   liste, retirer le minimum coûte combien ?
+Python compare les couples par leur premier élément, puis par le second
+en cas d'égalité.
 
-## Étape 2 - Dijkstra avec un tas
+**Résultat attendu :** les quatre sorties dans l'ordre, en indiquant
+pourquoi Bracciolu et Caldarella ne sortent pas dans leur ordre d'insertion.
 
-C'est la version des slides, complétée par `parent`. Elle garde les
-sommets inaccessibles à `INF`, comme `dijkstra_naif`.
-En cas d'égalité, le tas compare les sommets : les noms de communes
-(chaînes) et les cases des grilles (couples d'entiers) le permettent.
+## Étape 2 - Utiliser le tas dans Dijkstra
+
+**Code fourni**, à ajouter dans `graphes.py`, en gardant la version naïve.
+`INF` a été défini au TD 7. C'est le code des slides, avec les parents en plus.
 
 ```python
 from heapq import heappop, heappush
@@ -529,72 +685,165 @@ def dijkstra(g, s):
     return dist, parent
 ```
 
-1. Depuis Isulacciu : les mêmes distances que la version naïve ? Vérifiez
-   avec `dist_tas == dist_naif`, y compris les communes à `INF`.
-2. Une commune peut entrer plusieurs fois dans le tas. Pourquoi ? Que fait
-   `if d != dist[x]: continue` ?
-3. `chrono` des deux versions (`from chrono import chrono`) sur
-   `grille(k)`, k = 15, 30, 60. Les rapports quand n × 4, pour chacune.
-   À k = 60, le rapport entre les deux.
+Les préconditions et les valeurs renvoyées sont les mêmes qu'au TD 7.
+Les sommets doivent en plus être comparables pour départager les égalités
+dans le tas : c'est le cas des noms de communes et des couples `(ligne, colonne)`.
 
-## Étape 3 - Jusqu'où
+Ajoutez cette vérification dans `td8.py` :
 
-1. Le tableau : pour n = 10⁴ puis 10⁶ sommets et m = 2n arêtes, le
-   nombre d'opérations de n² et de (n + m) log₂ n.
-2. ★ Jusqu'à quel n la version naïve reste-t-elle acceptable (une
-   seconde) ? Partez de votre mesure à k = 60. Pourquoi étudier cette
-   version malgré son coût ?
+```python
+from graphes import charger_routes, dijkstra_naif, dijkstra
 
-## Bonus 1 - heapq au chronomètre
+g = charger_routes("routes.csv")
+dist_naif, _ = dijkstra_naif(g, "Isulacciu")
+dist_tas, _ = dijkstra(g, "Isulacciu")
+assert dist_tas == dist_naif
+print("Distances identiques")
+```
 
-`heappush` puis `heappop` sur 100 000 entrées : `chrono`. Puis `min` +
-`remove` sur une liste de 100 000, mille fois seulement. Rapport ?
+Une commune peut être ajoutée plusieurs fois au tas lorsqu'on trouve
+des trajets de plus en plus courts vers elle.
 
-## Bonus 2 - Pousser le tas
+**Résultat attendu :** la vérification réussie et une phrase expliquant
+quelle entrée est écartée par `if d != dist[x]`.
 
-La version tas seule, k = 60, 120, 240 (jusqu'à 57 600 sommets). Rapports.
-La naïve à k = 120 : pronostic, sans la lancer.
+## Étape 3 - Comparer les temps
+
+Ajoutez dans `td8.py` ce **code fourni**. La génération du graphe se fait
+avant le chronométrage ; les deux algorithmes reçoivent le même graphe.
+
+```python
+from grilles import grille
+from chrono import chrono
+
+for k in (15, 30, 60):
+    gk = grille(k)
+    t_naif = chrono(dijkstra_naif, gk, (0, 0))
+    t_tas = chrono(dijkstra, gk, (0, 0))
+    print(k, len(gk), t_naif, t_tas)
+```
+
+Reportez les mesures dans ce tableau. À partir de la deuxième ligne,
+calculez chaque rapport en divisant la durée par celle de la ligne précédente.
+
+| k | n = k² | Durée naïve (s) | Rapport naïve | Durée tas (s) | Rapport tas |
+| --- | --- | --- | --- | --- | --- |
+| 15 | 225 | | — | | — |
+| 30 | 900 | | | | |
+| 60 | 3 600 | | | | |
+
+La sélection par `min` coûte O(n²) au total. Avec un tas, le coût est
+O((n + m) log n) pour un graphe simple. Sur ces grilles, le nombre
+d'arêtes est proportionnel à n. Quand n est multiplié par 4, on attend
+un temps naïf proche de × 16, et un temps avec tas proche de × 4,
+un peu plus à cause du logarithme. Les mesures peuvent s'en écarter.
+
+**Résultat attendu :** le tableau mesuré et une phrase indiquant si les
+tendances observées correspondent aux classes annoncées.
+
+## Bonus - Faire une extrapolation
+
+À partir de votre temps naïf pour k = 60, estimez le temps pour k = 120
+sans exécuter cette version. Calculez d'abord le facteur d'augmentation
+de n, puis appliquez le modèle quadratique.
+
+**Résultat attendu :** le calcul et une durée estimée en secondes.
 
 ---
 
 # TD 9 - Modéliser
 
-**Sur machine, puis sur papier**
+**Objectif : choisir et adapter un parcours à un problème.**
 
-## Partie A - Deux questions, deux parcours *(sur machine)*
+## Étape 1 - Trouver la case la plus éloignée
 
-1. **Le labyrinthe.** Depuis `D`, la case la plus éloignée en nombre de
-   pas, et le chemin pour y aller. Quel parcours ? Pourquoi pas l'autre ?
-2. **Les paquets.** L'ordre dans lequel uv doit installer les neuf
-   paquets de `DEPEND_DE` pour que chacun arrive **après** ce dont il a
-   besoin. Ce graphe n'a pas de cycle. Écrivez `ordre_installation(dep)` :
-   un parcours en profondeur qui ajoute un paquet à la liste **après**
-   avoir traité ses dépendances.
-   Comparez à `list(reversed(list(nx.topological_sort(D))))` : les ordres
-   peuvent différer, mais doivent respecter chaque dépendance.
-   ★ Préfixe ou postfixe, et pourquoi ?
+Le fichier **fourni** `labyrinthe.py` contient `charger_labyrinthe(chemin)`.
+Cette fonction renvoie `(graphe, depart)`. Chaque sommet est une case
+libre `(ligne, colonne)`, avec des indices commençant à 0. Deux cases
+voisines horizontalement ou verticalement sont reliées, avec un poids de 1.
+Vous n'avez pas à écrire la lecture du fichier.
 
-## Partie B - Sur papier ★
+Créez `td9.py` avec :
 
-Pour chaque situation : les sommets, les arêtes (orientées ?), les poids
-(lesquels ?), la question, l'algorithme, sa classe.
+```python
+from labyrinthe import charger_labyrinthe
+from graphes import largeur, chemin
 
-1. ★ Les salles d'un bâtiment et leurs portes. On cherche la sortie la
-   plus proche, en nombre de portes à franchir.
-2. ★ Les vols entre aéroports, avec leur prix. On cherche le trajet le
-   moins cher entre deux villes, escales comprises.
-3. ★ Les modules d'un bachelor et leurs prérequis. On cherche un ordre
-   pour les suivre.
-4. ★ Un réseau routier de 10⁶ carrefours et 3 · 10⁶ routes. Le plus
-   court chemin en km : combien d'opérations avec un tas ? Sans ? Et si
-   toutes les routes faisaient un kilomètre ?
+gl, depart = charger_labyrinthe("labyrinthe.txt")
+dist, parent = largeur(gl, depart)
+```
 
-## Bonus - Les secours
+Complétez le programme pour trouver, **parmi les cases atteignables**,
+celle dont `dist` est maximale. Utilisez ensuite `chemin` pour obtenir
+un trajet du départ à cette case. En cas d'égalité, vous pouvez choisir
+l'une des cases ou l'un des chemins optimaux.
 
-La préfecture place un centre de secours dans une commune : celle dont la
-commune **la plus lointaine** (en km) est la moins lointaine. Dijkstra
-depuis chacune des 22 communes de la composante d'Isulacciu, en limitant
-aussi les destinations à cette composante. Les deux autres communes
-restent à `INF` : les inclure dans le maximum rendrait tous les candidats
-ex æquo à l'infini. Laquelle choisir ? Quel coût total, en fonction de
-n et m ?
+**Résultat attendu :** les coordonnées de la case, sa distance en pas et
+la liste des cases du trajet. Le nombre de déplacements doit être égal
+à `len(trajet) - 1`.
+
+## Étape 2 - Ordonner les dépendances
+
+Dans `dependances.py`, `DEPEND_DE[p]` est la liste des prérequis du paquet `p`.
+On veut placer chaque paquet **après** ses prérequis. Le graphe fourni
+n'a pas de cycle.
+
+Dans `graphes.py`, écrivez `ordre_installation(dep)`, qui renvoie la liste
+ordonnée des noms de paquets. Inspirez-vous du parcours récursif : gardez
+un ensemble `vus`, visitez les dépendances d'un paquet avant de l'ajouter
+au résultat et lancez la visite depuis chaque clé de `dep`. Un paquet
+ne doit apparaître qu'une fois.
+
+**Code de vérification fourni**, à ajouter dans `td9.py` :
+
+```python
+from dependances import DEPEND_DE
+from graphes import ordre_installation
+
+ordre = ordre_installation(DEPEND_DE)
+assert len(ordre) == len(DEPEND_DE) and set(ordre) == set(DEPEND_DE)
+positions = {p: i for i, p in enumerate(ordre)}
+assert all(
+    positions[prerequis] < positions[paquet]
+    for paquet, prerequis_liste in DEPEND_DE.items()
+    for prerequis in prerequis_liste
+)
+print("Ordre valide :", ordre)
+```
+
+**Résultat attendu :** la fonction et une liste qui passe les vérifications.
+Indiquez en une phrase pourquoi l'ajout au résultat est **postfixe**.
+Plusieurs ordres valides sont possibles.
+
+## Étape 3 - Choisir un algorithme *(sur papier)*
+
+Complétez une ligne par situation. Les demandes sont :
+
+- Un bâtiment : trouver une sortie en franchissant le moins de portes
+  possible. Les portes se franchissent dans les deux sens.
+- Des vols entre aéroports : trouver un trajet au prix total minimal,
+  escales comprises. Les billets ont des prix positifs ; un vol aller
+  et un vol retour sont deux offres différentes.
+
+| Situation | Sommets | Arêtes et orientation | Poids utilisés | Algorithme choisi |
+| --- | --- | --- | --- | --- |
+| Bâtiment | | | | |
+| Vols | | | | |
+
+**Résultat attendu :** les deux lignes complétées. Appuyez votre choix
+sur ce que le problème demande de minimiser.
+
+## Bonus - Choisir un centre de secours
+
+On cherche une commune où placer un centre de secours. Pour chaque
+commune candidate, on calcule la distance à sa commune la plus éloignée.
+On choisit le candidat pour lequel ce maximum est le plus petit.
+
+Travaillez uniquement sur les 22 communes de la composante d'Isulacciu,
+aussi bien pour les candidats que pour les destinations. Les deux autres
+communes sont inaccessibles : leur distance infinie fausserait le maximum.
+Dans `td9.py`, rechargez les routes avec `charger_routes("routes.csv")`
+et utilisez Dijkstra depuis chaque candidat.
+
+**Résultat attendu :** le nom de la commune retenue et sa distance maximale
+en kilomètres. Importez les fonctions utilisées depuis `graphes`.

@@ -20,7 +20,7 @@ renvoient `(dist, parent)`.
 | **arbre** | non orienté, connexe et m = n - 1 : pas de cycle ; choisir une racine définit parents, feuilles et hauteur |
 | **forêt** | un ou plusieurs arbres ; k composantes, m = n - k |
 
-Cycles **indépendants** d'un graphe non orienté : m - n + k, avec k
+**Complément pour le bonus du TD 6.** Cycles indépendants d'un graphe non orienté : m - n + k, avec k
 composantes (m - n + 1 si connexe). Ce n'est pas le total des cycles simples.
 
 ## Ranger
@@ -89,7 +89,7 @@ mémoire auxiliaire au pire. Les versions des slides utilisent O(n).
 ```python
 def afficher(s, p=0):                      # PRÉFIXE : le sommet avant ses enfants
     print(" " * p + s)
-    for e in enfants.get(s, []): afficher(e, p + 2)
+    for e in sorted(enfants.get(s, [])): afficher(e, p + 2)
 
 def taille(s):                             # POSTFIXE : le sommet après ses enfants
     return 1 + sum(taille(e) for e in enfants.get(s, []))
@@ -159,6 +159,11 @@ Coûts des parcours hors tri des voisins. Poids tous égaux et ≥ 0 : la
 largeur suffit, pas de tas à payer.
 
 ## networkx - vérifier
+
+Dans les TD, `vers_networkx(g)` est une fonction fournie au TD 3 dans
+`graphes.py` : elle convertit le graphe de routes en `nx.Graph` avec
+l'attribut de poids `km`. Le fichier fourni `labyrinthe.py` contient
+`charger_labyrinthe(chemin)`, qui renvoie `(graphe, depart)` pour le TD 9.
 
 ```python
 import networkx as nx                       # uv add networkx → pyproject.toml, uv.lock
