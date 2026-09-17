@@ -17,7 +17,9 @@ Si vous avez déjà le dépôt, `git fetch origin` puis `git switch tp/ue0-04-gr
 
 ## Ce que contient la branche
 
-_Le matériel de ce TD sera publié ici avant la séance._
+- `manip/` - les fichiers à utiliser pendant la séance sur machine
+- `memo-a4.md` - le mémo de syntaxe - la matière de la feuille A4 autorisée à l'épreuve
+- `td-enonces.md` - l'énoncé des travaux dirigés
 
 Chaque chapitre a sa branche : `git switch tp/<ue>-<chapitre>`. La branche
 `master` en donne la liste.
