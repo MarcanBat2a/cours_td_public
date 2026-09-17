@@ -447,6 +447,12 @@ Dans `graphes.py`, écrivez `chemin(parent, arrivee)`. La fonction doit
 Partez de `arrivee`, suivez les parents jusqu'à `None`, puis inversez la
 liste obtenue. On suppose que l'arrivée figure dans `parent`.
 
+> **Aide si vous bloquez.** Avec `parent = {"A": None, "B": "A", "C": "B"}`,
+> partir de C fait lire C, puis B, puis A. La liste construite est
+> `["C", "B", "A"]` ; la fonction doit renvoyer `["A", "B", "C"]`.
+> À chaque tour de boucle, ajoutez le sommet courant puis remplacez-le
+> par son parent. Arrêtez-vous quand le sommet courant vaut `None`.
+
 Ajoutez ce code de vérification dans `td5.py` :
 
 ```python
@@ -518,6 +524,11 @@ Ajoutez ces deux fonctions dans `td6.py` ; elles utilisent `enfants` :
 
 Le calcul utilise les résultats des enfants avant de produire celui du
 sommet : c'est un traitement **postfixe**.
+
+> **Aide pour démarrer la récursion.** Une feuille contient seulement
+> elle-même : sa taille vaut 1 et sa hauteur vaut 0. Traitez ce cas
+> avant de calculer à partir des enfants ; cela évite notamment
+> d'appeler `max` sur une liste vide.
 
 **Résultat attendu :** affichez `taille("Isulacciu")`,
 `taille("Finosella")` et `hauteur("Isulacciu")`, avec un libellé pour chaque
@@ -763,6 +774,11 @@ libre `(ligne, colonne)`, avec des indices commençant à 0. Deux cases
 voisines horizontalement ou verticalement sont reliées, avec un poids de 1.
 Vous n'avez pas à écrire la lecture du fichier.
 
+On reprend la largeur du TD 5 : les sommets sont maintenant des **couples
+de coordonnées**, au lieu de noms de communes. Le numéro de ligne augmente
+vers le bas et celui de colonne vers la droite. Par exemple, `(1, 2)`
+désigne la deuxième ligne et la troisième colonne du fichier.
+
 Créez `td9.py` avec :
 
 ```python
@@ -771,12 +787,47 @@ from graphes import largeur, chemin
 
 gl, depart = charger_labyrinthe("labyrinthe.txt")
 dist, parent = largeur(gl, depart)
+
+# Points de contrôle avant de chercher la case la plus éloignée.
+assert depart == (1, 1), "Vérifiez le fichier labyrinthe.txt utilisé"
+assert dist[depart] == 0, "Le départ doit avoir une distance de zéro"
+assert len(dist) == 43, "Vérifiez votre parcours en largeur et les données"
 ```
 
-Complétez le programme pour trouver, **parmi les cases atteignables**,
-celle dont `dist` est maximale. Utilisez ensuite `chemin` pour obtenir
-un trajet du départ à cette case. En cas d'égalité, vous pouvez choisir
-l'une des cases ou l'un des chemins optimaux.
+`dist[case]` donne le nombre minimal de **pas** depuis le départ.
+`parent[case]` donne la case précédente dans le trajet. Par exemple :
+
+| Case | `dist[case]` | `parent[case]` |
+| --- | --- | --- |
+| `(1, 1)`, le départ | 0 | `None` |
+| `(1, 2)`, juste à droite du départ | 1 | `(1, 1)` |
+
+Si un point de contrôle échoue, reprenez le chargement ou la largeur
+avec l'enseignant avant de continuer. Si votre fonction `chemin` du TD 5
+n'est pas encore opérationnelle, demandez une version corrigée pour
+pouvoir poursuivre cet exercice.
+
+Ajoutez le bloc suivant. **Remplacez seulement `pass` par un test et
+une mise à jour** : si `nb_pas` est supérieur à `dist[arrivee]`,
+retenez `case` comme nouvelle arrivée. `dist.items()` fournit les couples
+`(case, nombre de pas)` ; comparez les distances, pas les coordonnées.
+
+```python
+arrivee = depart
+for case, nb_pas in dist.items():
+    # Retenir cette case si elle est plus éloignée que l'arrivée actuelle.
+    pass  # à remplacer
+
+trajet = chemin(parent, arrivee)
+print("Case la plus éloignée :", arrivee)
+print("Distance en pas :", dist[arrivee])
+print("Trajet :", trajet)
+assert len(trajet) - 1 == dist[arrivee]
+```
+
+Les cases inaccessibles sont absentes de `dist` : cette boucle examine
+seulement les cases atteignables. En cas d'égalité, conserver la première
+case trouvée convient. Plusieurs trajets optimaux peuvent être corrects.
 
 **Résultat attendu :** les coordonnées de la case, sa distance en pas et
 la liste des cases du trajet. Le nombre de déplacements doit être égal
@@ -793,6 +844,29 @@ ordonnée des noms de paquets. Inspirez-vous du parcours récursif : gardez
 un ensemble `vus`, visitez les dépendances d'un paquet avant de l'ajouter
 au résultat et lancez la visite depuis chaque clé de `dep`. Un paquet
 ne doit apparaître qu'une fois.
+
+**Aide facultative si la récursion bloque.** Vous pouvez partir de ce
+squelette dans `graphes.py`. Remplacez `pass` par la visite des prérequis,
+puis l'ajout du paquet au résultat, dans cet ordre :
+
+```python
+def ordre_installation(dep):
+    vus, ordre = set(), []
+    def visiter(paquet):
+        if paquet in vus:
+            return
+        vus.add(paquet)
+        # Appeler visiter pour chaque prérequis présent dans dep[paquet].
+        # Ajouter ensuite paquet à ordre.
+        pass  # à remplacer
+    for paquet in dep:
+        visiter(paquet)
+    return ordre
+```
+
+Sur le petit exemple `{"application": ["outil"], "outil": []}`, le résultat
+doit être `["outil", "application"]` : on ajoute l'application après le
+retour de la visite de l'outil. Ce principe est celui du postfixe au TD 6.
 
 **Code de vérification fourni**, à ajouter dans `td9.py` :
 
