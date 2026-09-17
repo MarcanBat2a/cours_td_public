@@ -1,7 +1,7 @@
 # Un programme qui marche, et qui est lent. Trois causes, trois remèdes du
 # chapitre. Lancez-le, chronométrez chaque partie, puis réparez.
 #
-#   python lent.py
+#   uv run lent.py
 import random
 import time
 

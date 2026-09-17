@@ -1,5 +1,6 @@
-# Les tris du chapitre 2, avec leur compteur de comparaisons - au cas où les
-# vôtres se seraient perdus. Chaque fonction renvoie (liste triée, comparaisons).
+# Les tris du chapitre 2, avec leur compteur de comparaisons, fournis : le
+# chapitre 3 se fait sans avoir écrit les vôtres. Chaque fonction renvoie
+# (liste triée, comparaisons).
 #
 #   from tris_ch2 import tri_selection, tri_insertion, tri_fusion
 

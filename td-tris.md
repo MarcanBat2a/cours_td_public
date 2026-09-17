@@ -3,14 +3,14 @@
 **UE 0 - Algo 3 avec Python · Chapitre 3 · TD à part**
 Marcu-Andria Battesti · Bachelor CLIC · 2026-2027
 
-> Un TD complet, sur machine, à faire après le TD 4. Cinq tris écrits par
-> vous - sélection, bulle, insertion, rapide, fusion - chronométrés sur
+> Un TD complet, sur machine, à faire après le TD 4. Cinq tris -
+> sélection, bulle, insertion, rapide, fusion - chronométrés sur
 > **le même jeu de données**, et pour finir un tableau : lequel, dans
 > quel cas.
 >
-> Dans `algo3/chapitre3/`, avec `uv run`, `chrono.py` à côté. Votre
-> `tris.py` du chapitre 2 (sélection, insertion, fusion) ou
-> `manip/tris_ch2.py` en secours.
+> Dans `algo3/chapitre3/`, avec `uv run`, `chrono.py` à côté.
+> `tris_ch2.py` fournit sélection, insertion et fusion ; bulle et rapide
+> sont à écrire. Votre `tris.py` du chapitre 2, si vous l'avez, sert aussi.
 >
 > **Le pronostic avant la mesure**, sur la fiche. Les temps varient d'un
 > poste à l’autre ; les rapports entre lignes et colonnes donnent une
@@ -61,8 +61,8 @@ Dans `cinq_tris.py`. Chaque tri prend une liste et **renvoie une nouvelle
 liste triée**, sans compteur cette fois. Le test, pour chacun :
 `tri(liste_aleatoire(1000)) == sorted(liste_aleatoire(1000))`.
 
-1. **Sélection, insertion, fusion** : reprenez celles du chapitre 2 en
-   retirant le compteur (ou `tris_ch2` : gardez `[0]` du tuple renvoyé).
+1. **Sélection, insertion, fusion** : reprenez celles de `tris_ch2` en
+   gardant `[0]` du tuple renvoyé (ou les vôtres, en retirant le compteur).
 2. **Bulle** : parcourir la liste, échanger deux voisins mal ordonnés ;
    recommencer tant qu'un passage a fait au moins un échange. Après un
    passage complet, où se trouve le plus grand élément ? Le passage
@@ -134,7 +134,7 @@ for nom, t in jeux(3000).items():
    seulement changé de place ?
 4. ★ La sélection a quatre temps égaux. Pourquoi est-elle la seule ?
 5. L'insertion sur la liste presque triée : le rapport avec la colonne
-   aléatoire ? Avec le compteur du chapitre 2, mesurez ses comparaisons
+   aléatoire ? Avec le compteur de `tris_ch2`, mesurez ses comparaisons
    sur `presque triée` : vous trouverez à peu près 8 × n. D'où viennent
    ces 8 n, sachant que dix échanges ont déplacé vingt éléments ?
 6. ★ La bulle profite de l'ordre sur la liste triée, mais très peu sur

@@ -6,12 +6,21 @@ Marcu-Andria Battesti · Bachelor CLIC · 2026-2027
 > Neuf travaux dirigés sur trois séances, tous sur machine. Dans
 > `algo3/` (le projet uv du chapitre 1), avec `uv run`, un dossier `chapitre3/`
 > avec le **contenu** de `manip/` copié à côté de vos programmes.
-> Vos `tris.py` et `recursif.py` du chapitre 2 servent tels quels ;
-> `manip/tris_ch2.py` en secours.
+> Pas encore de projet `algo3/` : `uv init --no-package algo3`, puis
+> `cd algo3`.
+>
+> Les algorithmes du chapitre 2 sont fournis, inutile de les avoir
+> écrits : `tris_ch2.py` (sélection, insertion, fusion, chacun renvoie
+> `(liste, compteur)`) et `recursif_ch2.py` (`fib` et `puissance` avec le
+> compteur `appels`, `somme`, `etapes`). Vos `tris.py` et `recursif.py`
+> du chapitre 2, si vous les avez, servent aussi.
 >
 > **Le pronostic avant la mesure**, sur la fiche. Les temps varient d'un
 > poste à l’autre. Les rapports aident à observer une tendance, mais
 > ils peuvent eux aussi varier selon les données et le poste.
+> Une mesure suggère une croissance ; la lecture du code la justifie.
+> Sauf mention, annoncer le pire cas. Pour les ensembles et dictionnaires,
+> les coûts utilisés ici sont moyens ; pour `append`, ils sont amortis.
 >
 > `manip/chrono.py` : `chrono(f, *args)` renvoie le meilleur de trois
 > temps ; `tableau(f, tailles)` affiche n, temps et rapport pour des listes
@@ -33,7 +42,7 @@ Marcu-Andria Battesti · Bachelor CLIC · 2026-2027
 ```python
 import time
 from chrono import liste_aleatoire
-from tris import tri_insertion          # ou tris_ch2
+from tris_ch2 import tri_insertion      # ou votre tris.py du chapitre 2
 
 t = liste_aleatoire(1000)
 debut = time.perf_counter()
@@ -52,6 +61,8 @@ tableau(tri_insertion, [100, 1000, 3000, 10000])
 ```
 
 1. Recopiez la colonne « rapport ». De 1 000 à 10 000, n × 10 : temps × ?
+   Le tableau passe par 3 000 : divisez les deux temps, ou multipliez
+   les deux rapports intermédiaires.
 2. Même chose pour `tri_selection`, `tri_fusion`, et `sorted` (pour
    `sorted`, allez jusqu'à 1 000 000).
 3. ★ Classez les quatre tris par leur rapport « n × 10 → temps × ? ».
@@ -62,8 +73,9 @@ tableau(tri_insertion, [100, 1000, 3000, 10000])
 1. Le temps de l'insertion à 10 000. Pronostic pour 100 000 ? Pour un
    million ? En secondes, minutes, heures.
 2. Même calcul pour la fusion à un million. Vérifiez au chronomètre
-   pour la fusion ; pour l'insertion, lancez 30 000 et comparez à votre
-   règle.
+   pour la fusion ; pour l'insertion, lancez 30 000 **une seule fois**
+   (`chrono(tri_insertion, liste_aleatoire(30000), repetitions=1)`) et
+   comparez à votre règle.
 3. ★ Le chapitre 2 vérifiait les tris sur de petites listes. Avec votre
    règle, expliquez pourquoi on extrapole ici le temps sur un million.
 
@@ -75,13 +87,12 @@ tableau(tri_insertion, [100, 1000, 3000, 10000])
 
 ## Étape 1 - La constante
 
-Sélection et insertion renvoient `(liste, compteur)`. Le tri fusion du
-chapitre 2 renvoie une liste et met à jour `tris.comparaisons` : remettre
-cette globale à zéro **avant chaque appel**. `tris_ch2` fournit en secours
-une interface uniforme `(liste, compteur)` pour les trois tris.
+Les trois tris de `tris_ch2` renvoient `(liste, compteur)`. Si vous
+utilisez votre `tris.py` du chapitre 2 : son tri fusion renvoie une liste
+et met à jour `tris.comparaisons`, à remettre à zéro **avant chaque
+appel**.
 
-Les tris du chapitre 2 (les vôtres, ou `tris_ch2`) sur
-`liste_aleatoire(n)` pour n = 100, 1 000, 10 000 :
+Les trois tris sur `liste_aleatoire(n)` pour n = 100, 1 000, 10 000 :
 
 | n | sélection / n² | insertion / n² | fusion / (n · log₂ n) |
 | --- | --- | --- | --- |
@@ -105,14 +116,17 @@ Pour chaque classe, le nombre d'opérations à n = 1 000 et n = 10⁶ :
 | O(n²) | | | |
 | O(2ⁿ) | | | |
 
-1. Remplissez sans machine. Python fait environ 10⁷ à 10⁸ opérations
-   simples par seconde : convertissez la colonne 10⁶ en temps.
+1. Remplissez sans machine en évaluant les fonctions de référence.
+   Pour convertir la colonne 10⁶ en temps, **supposez** une cadence de
+   10⁷ opérations simples par seconde. C'est une hypothèse de calcul,
+   pas une vitesse universelle de Python.
 2. ★ Attribuez sa classe à chaque tri du TD 1, et à `sorted`. Justifiez
    par le rapport mesuré.
 
 ## Étape 3 - Jusqu'où
 
-Vous avez une seconde de calcul.
+Vous avez une seconde de calcul. Pour cette estimation, supposez une
+cadence de 10⁷ opérations par seconde et un coefficient dominant égal à 1.
 
 1. Quel n maximal pour un algorithme en O(n²) ? En O(n log n) ? En
    O(2ⁿ) ?
@@ -194,8 +208,9 @@ les comptes changeraient.
 
 ## Étape 3 - Prédire
 
-1. Le temps d'une comparaison : temps de l'insertion à 10 000 (TD 1)
-   divisé par son compteur. En nanosecondes.
+1. Le temps moyen par comparaison comptée : temps de l'insertion à
+   10 000 (TD 1) divisé par son compteur, en nanosecondes. Ce quotient
+   inclut aussi les déplacements et les boucles du tri.
 2. Avec ce temps et n²/4 : l'insertion sur un million, en secondes puis
    en heures. Sur dix millions ?
 3. ★ Expliquez pourquoi la fusion combine environ log₂ n niveaux avec
@@ -209,8 +224,10 @@ les comptes changeraient.
 
 **Sur machine**
 
-`recursif.py` du chapitre 2. Remettre le compteur à zéro avant chaque
-mesure. La mémoïsation sera construite au TD 8.
+`recursif_ch2.py` (ou votre `recursif.py` du chapitre 2). Remettre le
+compteur à zéro avant chaque mesure : `recursif_ch2.appels = 0`, puis
+lire `recursif_ch2.appels` après l'appel. La mémoïsation sera construite
+au TD 8.
 
 ## Étape 1 - Fibonacci
 
@@ -223,7 +240,7 @@ mesure. La mémoïsation sera construite au TD 8.
 
 ## Étape 2 - Réduire le nombre d'appels
 
-La version du chapitre 2 diminue l'exposant de 1 à chaque appel.
+`puissance` de `recursif_ch2` diminue l'exposant de 1 à chaque appel.
 Pour `n` pair, on peut calculer une seule fois la puissance d'exposant
 `n // 2`, puis multiplier ce résultat par lui-même.
 
@@ -238,7 +255,8 @@ def puissance_rapide(x, n):
 ```
 
 1. Vérifiez l'égalité avec la version naïve sur de petits exposants.
-   Comptez les appels de chaque version pour `(2, 500)`.
+   Comptez les appels de chaque version pour `(2, 500)` : donnez à
+   `puissance_rapide` son propre compteur, sur le modèle de `fib`.
 2. ★ Comparez le nombre d'appels en fonction de n. Pourquoi stocker
    le résultat dans `p`, au lieu d'appeler deux fois la fonction ?
    On étudie ici les appels et les multiplications, sans détailler le
@@ -255,7 +273,9 @@ def somme_rec(t):
 
 1. `sys.setrecursionlimit(5000)`, puis `chrono(somme_rec, list(range(n)))`
    pour n = 200, 400, 800, 1 600, 3 200. Rapport quand n × 2 ?
-2. Même chose pour `somme` en boucle. Rapport ?
+2. Même chose pour `somme_boucle(t)`, à écrire : un accumulateur et une
+   boucle `for`. La `somme` de `recursif_ch2` est récursive, ce
+   n'est pas elle. Rapport ?
 3. ★ Où sont les n² de la version récursive ? Réécrivez-la en récursif
    **sans** copie : un indice en argument. Rapport ?
 
@@ -286,8 +306,8 @@ Pour n = 1 000 et 3 000, trois entrées : `liste_aleatoire(n)`, la même
 triée, la même inversée.
 
 1. Compteurs et temps. Le rapport entre le meilleur et le pire ?
-2. ★ Formule du meilleur cas, du pire cas. Lequel des deux la notation
-   O(n²) décrit-elle ?
+2. ★ Formule du meilleur cas, du pire cas. Lequel des deux annonce-t-on
+   quand on dit « l'insertion est en O(n²) » ?
 
 ## Étape 2 - Le tri rapide
 
@@ -304,7 +324,8 @@ def tri_rapide(t, cpt):
     return tri_rapide(petits, cpt) + [pivot] + tri_rapide(grands, cpt)
 ```
 
-1. Compteur sur `liste_aleatoire(n)` puis sur la même triée, n = 1 000
+1. `import sys` puis `sys.setrecursionlimit(5000)` en tête du fichier.
+   Compteur sur `liste_aleatoire(n)` puis sur la même triée, n = 1 000
    et 2 000. Classe dans chaque cas ?
 2. ★ Pourquoi la liste triée est-elle le pire cas de **ce** tri rapide ?
    Un remède en une ligne ?
@@ -330,6 +351,9 @@ def tri_rapide(t, cpt):
 # TD 7 - La bonne structure
 
 **Sur machine**
+
+Les fonctions nommées dans ce TD (`connus`, `doublons_n2`,
+`doublons_set`) sont à écrire : l'énoncé donne leur nom et leur idée.
 
 ## Étape 1 - in
 
@@ -358,15 +382,21 @@ n = 2 000, 4 000, 8 000.
 3. ★ Le nombre de doublons trouvés est-il le même ? Si non, pourquoi, et
    laquelle des deux a raison ?
 
-## Étape 3 - Deux qui font n
+## Étape 3 - Deux qui font 1 000
 
 Les paires de communes dont les populations font exactement 1 000.
+
+```python
+from communes import COMMUNES
+pops = [c["population"] for c in COMMUNES]
+```
 
 1. En deux boucles, sur `pops`. Résultat.
 2. Avec un ensemble des valeurs déjà vues : pour chaque `x`, `1000 - x`
    a-t-il déjà été vu ? Même résultat ?
 3. ★ Les deux sur `random.sample(range(0, 4 * n), n)` pour n = 2 000,
-   4 000, 8 000. Classes, rapports, et la phrase qui résume le TD.
+   4 000, 8 000, toujours pour la somme 1 000. Classes, rapports, et la
+   phrase qui résume le TD.
 
 ---
 
@@ -413,25 +443,27 @@ requetes = [sorted(random.sample(range(100000), 2)) for _ in range(2000)]
 2. `sommes_prefixe(t, requetes)` : `prefixe[i]` = somme de `t[:i]`,
    construit une fois ; puis `prefixe[b] - prefixe[a]`. Temps, résultat
    identique ?
-3. ★ Coût de chaque version en fonction de n et q. Pour combien de
-   requêtes le précalcul est-il rentable ?
+3. ★ Coût de chaque version en fonction de n et q. Quel rôle joue la
+   longueur des tranches ? Comparez préparation comprise et estimez
+   sur votre poste à partir de combien de requêtes le précalcul est rentable.
 
 ## Étape 3 - Trier une fois
 
-Reprendre `identifiants` et les requêtes d’identifiants du TD 7,
-à distinguer des couples d’indices de l’étape précédente.
+Reprendre `identifiants` et les requêtes d’identifiants du TD 7
+(le bloc de code de son étape 1), à distinguer des couples d’indices de l’étape précédente.
 
 1. `x in identifiants` mille fois. Temps.
 2. Trier `identifiants` une fois, puis utiliser `bisect_left` pour
    chaque requête. Pour tester la présence, vérifier la borne et
    l’égalité : `i < len(t) and t[i] == x`. Temps, même compte ?
-3. ★ Le tri coûte n log n. À partir de combien de recherches est-il
-   remboursé ?
+3. ★ Avec le modèle `n log₂ n + q log₂ n` contre `q n`, estimez à partir
+   de combien de recherches le tri est remboursé. Comparez avec les
+   mesures : pourquoi ce seuil n'est-il pas une garantie universelle ?
 
 ## Bonus - Collatz, avec mémoire
 
-1. Le `n < 100 000` qui demande le plus d'étapes, avec `etapes(n)` du
-   chapitre 2. Temps.
+1. Le `n < 100 000` qui demande le plus d'étapes, avec `etapes(n)` de
+   `recursif_ch2`. Temps.
 2. La même chose avec un dictionnaire des longueurs déjà calculées :
    `etapes(n) = 1 + etapes(suivant)`, mémorisé.
    `sys.setrecursionlimit(10000)`. Temps, même réponse ?
@@ -488,4 +520,4 @@ def c(t, x):
    d'usage la trier vaudrait-elle le coup ?
 3. ★ Une fonction reçoit une liste de n communes et, pour chaque commune,
    compte celles du même canton en parcourant toute la liste. Classe ?
-   Réécrivez-la en une classe de moins, en trois lignes.
+   Réécrivez-la en O(n), en quelques lignes.
