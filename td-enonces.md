@@ -30,7 +30,8 @@ algo3/
     ├── grilles.py
     ├── chrono.py
     ├── labyrinthe.py
-    └── labyrinthe.txt
+    ├── labyrinthe.txt
+    └── depart-td4/          # utile seulement si vous commencez au TD 4
 ```
 
 - Dans `graphes.py`, ajoutez les fonctions et les imports demandés, en
@@ -42,6 +43,10 @@ algo3/
   `uv run td1.py`, en remplaçant le numéro par celui du TD.
 - Notez les réponses écrites, tableaux et résultats dans `reponses.md`
   ou sur papier, en indiquant le numéro du TD et de l'étape.
+- Le dossier `depart-td4/` ne sert qu'aux séances qui commencent au TD 4
+  sans avoir fait les TD 1 à 3. Si vous suivez le chapitre depuis le TD 1,
+  laissez-le de côté : il contient le `graphes.py` du TD 2, que vous écrivez
+  vous-même.
 
 Les blocs marqués **Code fourni** sont à recopier. Lorsqu'une fonction
 est à écrire, la consigne précise ses paramètres et ce qu'elle doit
@@ -294,6 +299,40 @@ si toutes les communes sont accessibles les unes depuis les autres.
 # TD 4 - En profondeur
 
 **Objectif : parcourir un graphe et comparer récursion et pile explicite.**
+
+## Avant de commencer - la base du TD 2
+
+Ce TD s'appuie sur deux fonctions écrites au TD 2 : `charger_routes(chemin)`,
+qui lit `routes.csv` et renvoie le graphe sous la forme
+`{commune: {voisine: distance}}`, et `voisins(g, s)`, qui renvoie les communes
+voisines de `s` triées par ordre alphabétique. C'est cet ordre qui fixe l'ordre
+de visite des parcours.
+
+**Vous avez fait le TD 2 ?** Votre `graphes.py` contient déjà ces fonctions.
+Passez directement à l'étape 1.
+
+**Vous commencez le chapitre à ce TD ?** La base est fournie. Depuis
+`algo3/chapitre4/`, où vous avez copié le contenu de `manip/` :
+
+```bash
+cp depart-td4/graphes.py graphes.py
+```
+
+Vérifiez-la avant d'aller plus loin :
+
+```bash
+uv run python -c "from graphes import charger_routes, voisins; g = charger_routes('routes.csv'); print(len(g), voisins(g, 'Isulacciu'))"
+```
+
+La sortie attendue est `24 ['Caldarella', 'Finosella']` : le fichier décrit
+24 communes, et Isulacciu en a deux pour voisines. Une autre sortie signale un
+`routes.csv` absent ou tronqué ; corrigez-la avant de continuer.
+
+Ce fichier est votre `graphes.py` pour la suite : vous y ajoutez les fonctions
+des étapes ci-dessous, sans toucher aux trois qui s'y trouvent déjà.
+NetworkX, installé au TD 3, n'est pas utilisé ici : n'installez rien.
+
+**Résultat attendu :** la ligne `24 ['Caldarella', 'Finosella']`.
 
 ## Étape 1 - Exécuter le parcours récursif
 
