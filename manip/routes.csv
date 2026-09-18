@@ -1,0 +1,33 @@
+depart,arrivee,km
+Isulacciu,Caldarella,6
+Caldarella,Acquaviva,9
+Acquaviva,Petralba,7
+Petralba,Vallecalda,11
+Vallecalda,Finosella,8
+Finosella,Isulacciu,14
+Acquaviva,Fiumaltu,12
+Petralba,Tuvarelli,13
+Fiumaltu,Tuvarelli,5
+Tuvarelli,Nuciola,6
+Nuciola,Castagnetu,7
+Castagnetu,Bracciolu,8
+Bracciolu,Quarcetu,4
+Quarcetu,Fiumaltu,15
+Nuciola,Quarcetu,9
+Castagnetu,Ortoli,10
+Bracciolu,Ulmetu Vecchiu,9
+Ortoli,Ulmetu Vecchiu,6
+Ortoli,Ghjuncaghju,7
+Ghjuncaghju,Bucchiniccia,5
+Bucchiniccia,Scandulaghju,8
+Scandulaghju,Erbaghjolu,6
+Erbaghjolu,Ghjuncaghju,11
+Ulmetu Vecchiu,Scandulaghju,12
+Erbaghjolu,Muntagnola,9
+Bucchiniccia,Rocca Sarda,13
+Muntagnola,Rocca Sarda,8
+Rocca Sarda,Alzipratu,7
+Muntagnola,Zinzale,10
+Zinzale,Alzipratu,6
+Vallecalda,Ulmetu Vecchiu,45
+Diavulinu,Lavu Neru,5
