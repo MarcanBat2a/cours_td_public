@@ -224,10 +224,52 @@ les comptes changeraient.
 
 **Sur machine**
 
-`recursif_ch2.py` (ou votre `recursif.py` du chapitre 2). Remettre le
-compteur à zéro avant chaque mesure : `recursif_ch2.appels = 0`, puis
-lire `recursif_ch2.appels` après l'appel. La mémoïsation sera construite
-au TD 8.
+## Pour démarrer, même sans les fichiers précédents
+
+Vous pouvez faire ce TD sans avoir écrit les programmes des TD précédents.
+Récupérez ces **deux fichiers fournis** dans `manip/` :
+
+- [recursif_ch2.py](manip/recursif_ch2.py) : `fib` et `puissance`, déjà
+  équipées du compteur `appels`, ainsi que `somme` et `etapes` ;
+- [chrono.py](manip/chrono.py) : la fonction `chrono` utilisée à l'étape 3
+  et pour le bonus.
+
+Placez-les dans `algo3/chapitre3/` et créez votre fichier `td5.py` à côté :
+
+```text
+algo3/
+└── chapitre3/
+    ├── recursif_ch2.py
+    ├── chrono.py
+    └── td5.py
+```
+
+Si vous n'avez pas encore de projet `algo3/`, créez-le avec
+`uv init --no-package algo3`, puis créez le dossier `chapitre3/` dedans.
+Pour vérifier que tout est prêt, commencez `td5.py` ainsi :
+
+```python
+import sys
+import recursif_ch2
+from chrono import chrono
+
+recursif_ch2.appels = 0
+resultat = recursif_ch2.fib(5)
+print("Résultat :", resultat)
+print("Nombre d'appels :", recursif_ch2.appels)
+```
+
+Depuis le dossier `algo3/`, lancez `uv run chapitre3/td5.py`, puis adaptez
+ce fichier pour répondre aux questions.
+
+Remettez `recursif_ch2.appels` à zéro **avant chaque mesure** et lisez-le
+après l'appel. Utilisez `import recursif_ch2`, pas
+`from recursif_ch2 import appels` : ce dernier ne suit pas les mises à jour
+du compteur. Pour compter les appels, appelez directement la fonction :
+`chrono` l'exécute trois fois par défaut pour mesurer son temps.
+
+Votre `recursif.py` du chapitre 2, si vous l'avez, peut aussi servir en
+adaptant le nom du module. La mémoïsation sera construite au TD 8.
 
 ## Étape 1 - Fibonacci
 

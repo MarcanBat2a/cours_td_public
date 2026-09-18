@@ -25,6 +25,13 @@ Si vous avez déjà le dépôt, `git fetch origin` puis `git switch tp/ue0-03-co
 Chaque chapitre a sa branche : `git switch tp/<ue>-<chapitre>`. La branche
 `master` en donne la liste.
 
+## Commencer directement le TD 5
+
+Les fichiers des TD précédents ne sont pas nécessaires :
+[recursif_ch2.py](manip/recursif_ch2.py) et [chrono.py](manip/chrono.py)
+sont fournis. Copiez-les à côté de votre `td5.py` et suivez la
+[mise en place du TD 5 - Compter les appels](td-enonces.md#td-5---compter-les-appels).
+
 ## Rendre votre travail
 
 Travaillez sur votre propre copie. Ne poussez rien sur ce dépôt : il est en
