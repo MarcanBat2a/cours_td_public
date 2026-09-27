@@ -1,0 +1,148 @@
+# Billetterie du chapitre 1 - neuf machines sur votre poste.
+#
+#   docker compose up -d --build      démarrer (la première fois : 2 à 5 min)
+#   docker compose ps                 vérifier que tout tourne
+#   docker compose down -v            tout arrêter et effacer les données
+#
+# Le réseau « ue1-interne » relie les machines entre elles. Le couper pour une
+# machine, c'est provoquer une partition réseau :
+#
+#   docker network disconnect ue1-interne pg-b
+#   docker network connect ue1-interne pg-b
+#
+# Le poste (votre terminal dans le décor) atteint le guichet et les deux
+# catalogues par des réseaux d'accès séparés : couper « ue1-interne » ne vous
+# coupe jamais de la machine que vous interrogez.
+
+name: ue1-billetterie
+
+x-postgres: &postgres
+  build: ./postgres
+  image: ue1-billetterie-postgres
+  cap_add: [NET_ADMIN]
+  environment:
+    POSTGRES_PASSWORD: billetterie
+    POSTGRES_DB: billetterie
+    PGUSER: postgres
+    PGDATABASE: billetterie
+  healthcheck:
+    test: ["CMD", "pg_isready", "-q"]
+    interval: 2s
+    retries: 60
+
+x-etcd-env: &etcd-env
+  ETCD_DATA_DIR: /tmp/etcd
+  ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
+  ETCD_LISTEN_PEER_URLS: http://0.0.0.0:2380
+  ETCD_INITIAL_CLUSTER: etcd-a=http://etcd-a:2380,etcd-b=http://etcd-b:2380,etcd-c=http://etcd-c:2380
+  ETCD_INITIAL_CLUSTER_STATE: new
+  ETCD_INITIAL_CLUSTER_TOKEN: billetterie
+
+x-etcd: &etcd
+  image: gcr.io/etcd-development/etcd:v3.5.21
+  command: ["/usr/local/bin/etcd"]
+  networks: [interne]
+
+x-appli: &appli
+  build: ./billetterie
+  image: ue1-billetterie-appli
+
+services:
+  # --- Réservations : un primaire A et sa copie B -------------------------
+  pg-a:
+    <<: *postgres
+    container_name: pg-a
+    hostname: pg-a
+    command: >
+      postgres -c wal_level=replica -c max_wal_senders=5
+               -c wal_keep_size=128MB -c hot_standby=on
+    networks: [interne]
+
+  pg-b:
+    <<: *postgres
+    container_name: pg-b
+    hostname: pg-b
+    entrypoint: ["/usr/local/bin/demarrer-b.sh"]
+    depends_on:
+      pg-a: { condition: service_healthy }
+    networks: [interne]
+
+  # --- Le guichet web, qui réserve sur pg-a --------------------------------
+  guichet:
+    <<: *appli
+    container_name: guichet
+    hostname: guichet
+    command: ["python", "guichet.py"]
+    environment:
+      PGHOST: pg-a
+      PGUSER: postgres
+      PGPASSWORD: billetterie
+      PGDATABASE: billetterie
+    depends_on:
+      pg-a: { condition: service_healthy }
+    networks: [interne, acces-a]
+
+  # --- Le catalogue, recopié sur deux machines -----------------------------
+  cat-a:
+    <<: *appli
+    container_name: cat-a
+    hostname: cat-a
+    command: ["python", "catalogue.py"]
+    environment: { NOEUD: A, PAIR: cat-b }
+    networks: [interne, acces-a]
+
+  cat-b:
+    <<: *appli
+    container_name: cat-b
+    hostname: cat-b
+    command: ["python", "catalogue.py"]
+    environment: { NOEUD: B, PAIR: cat-a }
+    networks: [interne, acces-b]
+
+  # --- Trois nœuds etcd, qui décident à la majorité (Raft) -----------------
+  etcd-a:
+    <<: *etcd
+    container_name: etcd-a
+    hostname: etcd-a
+    environment:
+      <<: *etcd-env
+      ETCD_NAME: etcd-a
+      ETCD_ADVERTISE_CLIENT_URLS: http://etcd-a:2379
+      ETCD_INITIAL_ADVERTISE_PEER_URLS: http://etcd-a:2380
+
+  etcd-b:
+    <<: *etcd
+    container_name: etcd-b
+    hostname: etcd-b
+    environment:
+      <<: *etcd-env
+      ETCD_NAME: etcd-b
+      ETCD_ADVERTISE_CLIENT_URLS: http://etcd-b:2379
+      ETCD_INITIAL_ADVERTISE_PEER_URLS: http://etcd-b:2380
+
+  etcd-c:
+    <<: *etcd
+    container_name: etcd-c
+    hostname: etcd-c
+    environment:
+      <<: *etcd-env
+      ETCD_NAME: etcd-c
+      ETCD_ADVERTISE_CLIENT_URLS: http://etcd-c:2379
+      ETCD_INITIAL_ADVERTISE_PEER_URLS: http://etcd-c:2380
+
+  # --- Votre poste : curl et jq, sans rien installer -----------------------
+  poste:
+    <<: *appli
+    container_name: poste
+    hostname: poste
+    command: ["sleep", "infinity"]
+    init: true
+    networks: [acces-a, acces-b]
+
+networks:
+  interne:
+    name: ue1-interne
+  acces-a:
+    name: ue1-acces-a
+  acces-b:
+    name: ue1-acces-b
