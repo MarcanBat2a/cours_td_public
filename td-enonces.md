@@ -56,14 +56,14 @@ La fiche les désigne par leur nom :
 
 | Nom | Ce qui s'y tape | Pour l'ouvrir |
 | --- | --- | --- |
-| **hôte** | les commandes `docker` | un terminal de votre machine, dans `manip/` |
+| **principal** | les commandes `docker` | votre terminal habituel, dans `manip/`, hors de tout conteneur |
 | **poste** | les commandes `curl` | `docker compose exec poste bash` |
 | **Alice**, **Karim** | du SQL sur `pg-a` | `docker compose exec pg-a psql` |
 | **B** | du SQL sur la copie `pg-b` | `docker compose exec pg-b psql` |
 
-Sous Windows, utilisez PowerShell pour le terminal **hôte**. Les commandes
-`curl` se tapent toujours dans **poste**, jamais directement dans
-PowerShell : les guillemets n'y sont pas interprétés de la même façon.
+Sous Windows, utilisez PowerShell pour le terminal **principal**. Les
+commandes `curl` se tapent toujours dans **poste**, jamais directement
+dans PowerShell : les guillemets n'y sont pas interprétés de la même façon.
 
 Pour quitter `psql`, tapez `\q`. Pour quitter **poste**, tapez `exit`.
 
@@ -75,7 +75,7 @@ Pour quitter `psql`, tapez `\q`. Pour quitter **poste**, tapez `exit`.
 
 ## Étape 1 - Lancer *(5 min)*
 
-Dans **hôte** :
+Dans le terminal **principal** :
 
 ```bash
 docker compose up -d --build
@@ -108,7 +108,8 @@ place 7 avant et après la réservation.
 
 ## Étape 3 - Le plan du réseau *(5 min)*
 
-Dans **hôte**, listez les machines branchées sur chaque réseau :
+Dans le terminal **principal**, listez les machines branchées sur chaque
+réseau :
 
 ```bash
 docker network inspect ue1-interne --format '{{range .Containers}}{{.Name}} {{end}}'
@@ -259,8 +260,8 @@ Complétez :
 | `lent` | | | |
 | `perd-reponse` | | | |
 
-Dans **hôte**, `docker compose logs guichet` montre le journal du serveur :
-ce que le serveur sait, et qu'Alice ne voit pas.
+Dans le terminal **principal**, `docker compose logs guichet` montre le
+journal du serveur : ce que le serveur sait, et qu'Alice ne voit pas.
 
 **Résultat attendu :** le tableau complété, et une phrase : que peut
 conclure Alice à partir du seul message affiché ?
@@ -325,7 +326,7 @@ curl -s -X POST guichet:8000/reservations -H 'Idempotency-Key: reservation-A7' -
 ```
 
 Attendez 10 secondes, puis consultez `docker compose logs guichet` dans
-**hôte**.
+le terminal **principal**.
 
 **Résultat attendu :** l'ordre dans lequel le serveur a traité les deux
 demandes, et le nombre de réservations créées.
@@ -474,7 +475,7 @@ répondre de chaque côté » et « Quand la communication revient ».
 
 ### Étape 1 - Couper *(6 min)*
 
-Dans **hôte**, coupez B et notez l'heure :
+Dans le terminal **principal**, coupez B et notez l'heure :
 
 ```bash
 docker network disconnect ue1-interne pg-b
@@ -523,7 +524,7 @@ par la diapositive que vous avez observée.
 
 ### Étape 4 - Rebrancher et revenir en asynchrone *(3 min)*
 
-Dans **hôte** :
+Dans le terminal **principal** :
 
 ```bash
 docker network connect ue1-interne pg-b
@@ -553,7 +554,7 @@ curl -s cat-b:8000/description
 curl -s -X POST cat-b:8000/admin/horloge -d '{"decalage": -300}'
 ```
 
-Dans **hôte**, coupez `cat-b` :
+Dans le terminal **principal**, coupez `cat-b` :
 
 ```bash
 docker network disconnect ue1-interne cat-b
@@ -568,8 +569,8 @@ curl -s -X PUT cat-b:8000/description -d '{"valeur": "Ouverture à 20 h"}'
 ```
 
 Lisez les deux copies, puis rebranchez `cat-b` (`docker network connect
-ue1-interne cat-b` dans **hôte**). Attendez 3 secondes et relisez les deux
-copies.
+ue1-interne cat-b` dans le terminal **principal**). Attendez 3 secondes et
+relisez les deux copies.
 
 **Résultat attendu :** les valeurs lues pendant la coupure et après, la
 valeur écrite en dernier dans le temps réel, et l'explication de l'écart
@@ -612,7 +613,7 @@ trois nœuds s'accordent avec l'algorithme Raft : un **leader** reçoit les
 
 ## Étape 1 - Qui dirige ? *(5 min)*
 
-Dans **hôte** :
+Dans le terminal **principal** :
 
 ```bash
 docker compose exec etcd-a etcdctl endpoint status --cluster -w table
@@ -628,7 +629,7 @@ par exemple `etcd-c`.
 
 ## Étape 2 - Isoler le leader *(12 min)*
 
-Dans **hôte** :
+Dans le terminal **principal** :
 
 ```bash
 docker network disconnect ue1-interne etcd-X
@@ -656,7 +657,7 @@ ces lectures n'est **pas** linéarisable, et pourquoi ?
 
 ## Étape 3 - Rebrancher *(5 min)*
 
-Dans **hôte** :
+Dans le terminal **principal** :
 
 ```bash
 docker network connect ue1-interne etcd-X
@@ -669,8 +670,8 @@ tentée sur X à l'étape 2 (`bob`) a-t-elle laissé une trace ?
 
 ## Étape 4 - Plus de majorité nulle part *(7 min)*
 
-Dans **hôte**, débranchez **les trois** nœuds, puis tentez une écriture sur
-deux d'entre eux :
+Dans le terminal **principal**, débranchez **les trois** nœuds, puis
+tentez une écriture sur deux d'entre eux :
 
 ```bash
 docker network disconnect ue1-interne etcd-a
@@ -705,7 +706,7 @@ vous gardez pour la confirmation d'une place.
 
 ## Ranger
 
-Dans **hôte** :
+Dans le terminal **principal** :
 
 ```bash
 docker compose down -v
@@ -728,7 +729,8 @@ PostgreSQL à Karim ? Que doit faire le site dans ce cas ?
 
 ## Bonus 2 - Réserver si libre, avec etcd
 
-etcd propose aussi une opération conditionnelle. Dans **hôte** :
+etcd propose aussi une opération conditionnelle. Dans le terminal
+**principal** :
 
 ```bash
 docker compose exec etcd-a etcdctl txn -i
@@ -742,9 +744,9 @@ Comparez avec l'étape 4 du TD 1.
 
 ## Bonus 3 - Éloigner davantage B
 
-Dans **hôte**, `docker compose exec pg-b eloigner.sh 100ms`, puis refaites
-les mesures de l'étape 3 du TD 3. La durée d'une écriture synchrone suit-elle
-la distance ? Remettez `20ms` à la fin.
+Dans le terminal **principal**, `docker compose exec pg-b eloigner.sh 100ms`,
+puis refaites les mesures de l'étape 3 du TD 3. La durée d'une écriture
+synchrone suit-elle la distance ? Remettez `20ms` à la fin.
 
 ## Bonus 4 - Arrêter au lieu de débrancher
 
