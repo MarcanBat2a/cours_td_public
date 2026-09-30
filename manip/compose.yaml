@@ -1,0 +1,99 @@
+# La boutique du chapitre 2 : MongoDB, Elasticsearch et un atelier web.
+#
+#   docker compose up -d --build      démarrer (la première fois : 2 à 5 min)
+#   docker compose logs -f atelier    suivre le chargement jusqu'à « Boutique prête. »
+#   docker compose down -v            tout arrêter et effacer les données
+#
+# Les trois machines forment le replica set « rs0 » et se parlent par le
+# réseau « ue1-boutique ». Le couper pour une machine, c'est provoquer une
+# partition réseau :
+#
+#   docker network disconnect ue1-boutique mongo-a
+#   docker network connect ue1-boutique mongo-a
+#
+# L'atelier atteint chaque machine par un réseau d'accès séparé : couper
+# « ue1-boutique » ne coupe jamais l'atelier de la machine isolée.
+
+name: ue1-boutique
+
+x-mongo: &mongo
+  image: mongo:7.0
+  command: >
+    mongod --replSet rs0 --bind_ip_all --quiet
+           --wiredTigerCacheSizeGB 0.25 --oplogSize 200
+
+services:
+  mongo-a:
+    <<: *mongo
+    container_name: mongo-a
+    hostname: mongo-a
+    ports: ["127.0.0.1:${MONGO_PORT:-27018}:27017"]
+    volumes: [mongo-a-donnees:/data/db]
+    networks: [interne, acces-a]
+
+  mongo-b:
+    <<: *mongo
+    container_name: mongo-b
+    hostname: mongo-b
+    volumes: [mongo-b-donnees:/data/db]
+    networks: [interne, acces-b]
+
+  mongo-c:
+    <<: *mongo
+    container_name: mongo-c
+    hostname: mongo-c
+    volumes: [mongo-c-donnees:/data/db]
+    networks: [interne, acces-c]
+
+  # La sécurité désactivée convient uniquement à cet atelier local.
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.22
+    container_name: elasticsearch
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      xpack.ml.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+      http.cors.enabled: "true"
+      http.cors.allow-origin: '/^(http://localhost:8080|https://app\.elasticvue\.com)$/'
+    ports: ["127.0.0.1:9200:9200"]
+    volumes: [elasticsearch-donnees:/usr/share/elasticsearch/data]
+    networks: [recherche]
+
+  # Facultatif : docker compose --profile outils up -d elasticvue
+  elasticvue:
+    image: cars10/elasticvue:latest
+    profiles: [outils]
+    ports: ["127.0.0.1:8080:8080"]
+    networks: [recherche]
+
+  # L'atelier forme le replica set, charge les données et sert le site.
+  atelier:
+    build: ./atelier
+    image: ue1-boutique-atelier
+    container_name: atelier
+    hostname: atelier
+    init: true
+    depends_on: [mongo-a, mongo-b, mongo-c, elasticsearch]
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    ports: ["127.0.0.1:8000:8000"]
+    networks: [acces-a, acces-b, acces-c, recherche]
+
+networks:
+  interne:
+    name: ue1-boutique
+  acces-a:
+    name: ue1-boutique-acces-a
+  acces-b:
+    name: ue1-boutique-acces-b
+  acces-c:
+    name: ue1-boutique-acces-c
+  recherche:
+    name: ue1-boutique-recherche
+
+volumes:
+  mongo-a-donnees:
+  mongo-b-donnees:
+  mongo-c-donnees:
+  elasticsearch-donnees:

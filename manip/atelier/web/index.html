@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102136">
+  <title>Panique au Pop-up | Atelier MongoDB et Elasticsearch</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="missions.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-mark" aria-hidden="true">P!</span><span>Panique au Pop-up<small>L'équipe données entre en scène</small></span></a>
+    <div class="header-actions"><span id="connection" role="status">Connexion aux bases...</span><button id="exporter" class="button light">Exporter mon carnet</button><a id="export-link" class="download-link" hidden>Télécharger reponses.md</a></div>
+  </header>
+  <div class="layout">
+    <aside class="sidebar">
+      <p class="eyebrow">Votre feuille de route</p>
+      <div class="progress-label"><strong id="progress">0 / 8</strong><span>preuves consignées</span></div>
+      <progress id="progress-bar" max="8" value="0" aria-label="Preuves consignées"></progress>
+      <nav id="mission-list" aria-label="Missions"></nav>
+      <div class="team-note"><strong>Deux personnes, une enquête.</strong><p>Une personne écrit, l'autre prédit le résultat. Échangez les rôles à chaque mission.</p></div>
+      <details class="outils"><summary>Ouvrir les autres outils</summary><p>Dans Compass, connectez-vous à :</p><code>mongodb://localhost:27018/?directConnection=true</code><p>Dans Elasticvue, ajoutez le cluster <code>http://localhost:9200</code>, sans identifiant.</p><a href="http://localhost:8080" target="_blank" rel="noopener">Elasticvue local (profil outils)</a></details>
+      <button id="restaurer" class="text-button">Restaurer le petit jeu du cours</button>
+      <p class="small">3 h : 10 min de briefing, 165 min de missions et 5 min de débriefing. Chaque binôme lance son atelier sur son ordinateur.</p>
+    </aside>
+    <main>
+      <section class="briefing" aria-labelledby="mission-title">
+        <div class="briefing-top"><span id="mission-number" class="eyebrow"></span><span id="mission-time" class="time-chip"></span></div>
+        <h1 id="mission-title"></h1>
+        <p id="mission-concept" class="concept"></p>
+        <div class="message"><span id="mission-person" class="message-author"></span><p id="mission-story"></p></div>
+        <div class="mission-columns"><div><h2>Votre mission</h2><ul id="mission-tasks"></ul></div><div class="preuve"><h2>La preuve à garder</h2><p id="mission-proof"></p></div></div>
+        <div class="briefing-footer"><button id="charger" class="button dark">Préparer la console</button><button id="indice" class="button outline">Un indice</button><span id="hint-counter" class="small"></span></div>
+        <div id="hint" class="hint" role="status" hidden></div>
+        <div id="scene" class="scene" hidden>
+          <div class="scene-heading"><strong>Le dernier casque</strong><span>Deux demandes, un seul exemplaire</span></div>
+          <div class="stocks"><div><span>Base de référence</span><strong id="stock-mongo">?</strong><small>MongoDB</small></div><div><span>Copie pour la recherche</span><strong id="stock-elastic">?</strong><small>Elasticsearch</small></div></div>
+          <div class="scene-actions"><button class="button outline" data-action="preparer">Préparer : stock à 1</button><button class="button dark" data-action="acheter" data-client="Alice">Alice veut le casque</button><button class="button dark" data-action="acheter" data-client="Karim">Karim veut le casque</button><button class="button outline" data-action="rafraichir">Refresh Elasticsearch</button><button class="button dark" data-action="synchroniser">Copier depuis MongoDB</button></div>
+          <p class="small">Les deux boutons d'achat exécutent le même filtre et la même décrémentation atomique. Ils ne créent pas de commande. Relevez la réponse de chaque tentative.</p>
+        </div>
+      </section>
+      <section class="workbench" aria-labelledby="console-title">
+        <div class="workbench-heading"><h2 id="console-title">La console de l'équipe</h2><span class="live-label">Vos requêtes, les vraies bases</span></div>
+        <div class="tabs" role="tablist" aria-label="Moteur"><button id="tab-mongo" role="tab" aria-selected="true" aria-controls="mongo-controls">MongoDB</button><button id="tab-elastic" role="tab" aria-selected="false" aria-controls="elastic-controls">Elasticsearch</button></div>
+        <div class="console-grid">
+          <div class="editor-pane">
+            <div id="mongo-controls" class="controls" role="tabpanel" aria-labelledby="tab-mongo">
+              <label>Base<select id="base"><option>cours</option><option>boutique</option></select></label>
+              <label>Collection<select id="collection"><option>produits</option><option>commandes</option><option>avis</option><option>clients</option></select></label>
+              <label>Opération<select id="operation"><option>find</option><option>aggregate</option><option>updateOne</option><option>updateMany</option><option>insertOne</option><option>createIndex</option><option>explain</option></select></label>
+            </div>
+            <div id="elastic-controls" class="controls elastic-controls" role="tabpanel" aria-labelledby="tab-elastic" hidden>
+              <label>Méthode<select id="method"><option>POST</option><option>GET</option><option>PUT</option><option>DELETE</option></select></label>
+              <label>Chemin<input id="path" value="/catalogue/_search" spellcheck="false"></label>
+            </div>
+            <label class="editor-label" for="payload">Corps JSON <span>Ctrl + Entrée pour exécuter</span></label>
+            <textarea id="payload" spellcheck="false" aria-describedby="syntax-note"></textarea>
+            <p id="syntax-note" class="syntax-note">JSON strict : clés entre guillemets, sans commentaire. Ce corps est transmis au pilote MongoDB.</p>
+            <div class="run-row"><button id="executer" class="button accent">Exécuter la requête</button><button id="modele" class="text-button">Forme de l'opération</button></div>
+          </div>
+          <div class="results-pane"><div class="results-heading"><h3>Ce que répond la base</h3><span id="result-meta"></span></div><div id="feedback" role="status" class="feedback">Préparez la console, écrivez votre requête et testez votre prédiction.</div><div id="result-cards"></div><details id="raw-detail"><summary>Réponse JSON complète</summary><pre id="result-json">Aucune requête exécutée.</pre></details></div>
+        </div>
+      </section>
+      <section class="journal" aria-labelledby="journal-title"><div><p class="eyebrow">Votre carnet de bord</p><h2 id="journal-title">Qu'avez-vous compris ?</h2><p>Gardez le résultat utile et expliquez-le. La progression indique les preuves que vous avez consignées, elle ne corrige pas vos réponses.</p></div><label for="notes" class="sr-only">Preuve et explication de la mission</label><textarea id="notes" placeholder="Notre prédiction, la requête, le résultat observé et notre explication..."></textarea><div class="journal-footer"><span id="save-state" role="status" class="small"></span><button id="consigner" class="button dark">Consigner ma preuve</button><button id="suivante" class="button outline">Mission suivante</button></div></section>
+      <footer>UE 1 · Bases orientées documents · Boutique fictive, bases réelles · Aucune course au chronomètre</footer>
+    </main>
+  </div>
+  <dialog id="reset-dialog"><h2>Restaurer les données du cours ?</h2><p>Les modifications de <code>cours</code> et de l'index <code>catalogue</code> seront effacées. La grande base <code>boutique</code> et votre carnet seront conservés.</p><div class="dialog-actions"><button id="annuler-reset" class="button outline">Annuler</button><button id="confirmer-reset" class="button dark">Restaurer</button></div></dialog>
+</body>
+</html>
