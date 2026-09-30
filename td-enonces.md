@@ -23,7 +23,6 @@ et lancez-le.
 ```bash
 cd manip
 docker compose build
-docker compose pull
 ```
 
 ## Le décor : neuf machines
@@ -86,7 +85,12 @@ cas après une minute, relancez `docker compose ps`.
 
 ## Étape 2 - Une première réservation *(5 min)*
 
-Ouvrez **poste**, puis :
+Ouvrez **poste**
+```bash
+docker compose exec poste bash
+```
+ 
+ puis :
 
 ```bash
 curl -s guichet:8000/places/7
