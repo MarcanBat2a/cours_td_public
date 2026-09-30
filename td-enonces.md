@@ -10,6 +10,9 @@ que vous présentez à la correction. Notez vos réponses dans un fichier
 sont regroupés en fin de fiche. Ils sont facultatifs, et la suite n'en
 dépend pas.
 
+> **★** : les étapes dont la réponse doit tenir en une phrase juste ou
+> une mesure propre.
+
 Le [cours Google Slides](https://docs.google.com/presentation/d/19GHYcCHuAYXxYBGtbKccdqwM1XIar3k4wFp_FDY-bEA/edit)
 pose les questions. Ici, vous allez y répondre en observant de vrais
 systèmes : PostgreSQL pour les réservations, etcd pour la majorité, et une
@@ -23,6 +26,7 @@ et lancez-le.
 ```bash
 cd manip
 docker compose build
+docker compose pull --ignore-buildable    # télécharge etcd
 ```
 
 ## Le décor : neuf machines
@@ -85,12 +89,13 @@ cas après une minute, relancez `docker compose ps`.
 
 ## Étape 2 - Une première réservation *(5 min)*
 
-Ouvrez **poste**
+Ouvrez **poste** :
+
 ```bash
 docker compose exec poste bash
 ```
- 
- puis :
+
+Puis, dans **poste** :
 
 ```bash
 curl -s guichet:8000/places/7
@@ -127,22 +132,25 @@ même sur une seule base ».
 
 ## Étape 1 - Préparer la scène *(3 min)*
 
-Ouvrez deux terminaux **Alice** et **Karim** côte à côte. Dans **poste**,
-remettez la billetterie à zéro :
+Ouvrez deux terminaux côte à côte sur votre machine, dans `manip/`, et
+lancez dans chacun la même commande : l'un sera **Alice**, l'autre
+**Karim**.
+
+```bash
+docker compose exec pg-a psql
+```
+
+Dans **poste**, remettez la billetterie à zéro :
 
 ```bash
 curl -s -X POST guichet:8000/admin/reset
 ```
 
 ## Étape 2 - Lire, puis écrire *(8 min)*
-Ouvrez deux terminaux sur votre machine et lancez dans chacun la même commande (l'un sera Alice, l'autre Karim) :
-```bash 
-cd manip && docker compose exec pg-a psql
-```
 
 Tapez les quatre commandes **dans cet ordre**, en changeant de terminal à
-chaque ligne :
-
+chaque ligne. Dans `psql`, une place libre (`NULL`) s'affiche comme une
+ligne vide au-dessus de `(1 row)`.
 
 | Ordre | Terminal | Commande |
 | --- | --- | --- |
@@ -181,16 +189,17 @@ votre réponse : le mot `BEGIN` a-t-il empêché la double confirmation ?
 
 ## Étape 4 - Tester et attribuer en une seule opération ★ *(11 min)*
 
-Remettez la place à zéro, puis tapez, dans cet ordre :
+Remettez la place à zéro (l'`UPDATE ... SET titulaire = NULL` de
+l'étape 3), puis tapez, dans cet ordre :
 
 | Ordre | Terminal | Commande |
 | --- | --- | --- |
 | 1 | Alice | `UPDATE places SET titulaire = 'alice' WHERE concert = 'C17' AND place = 42 AND titulaire IS NULL;` |
 | 2 | Karim | `UPDATE places SET titulaire = 'karim' WHERE concert = 'C17' AND place = 42 AND titulaire IS NULL;` |
 
-Refaites ensuite l'essai avec la transaction de l'étape 3 (`BEGIN`, cet
-`UPDATE` conditionnel des deux côtés, puis `COMMIT` d'Alice avant celui
-de Karim).
+**Remettez de nouveau la place à zéro**, puis refaites l'essai avec la
+transaction de l'étape 3 (`BEGIN`, cet `UPDATE` conditionnel des deux
+côtés, puis `COMMIT` d'Alice avant celui de Karim).
 
 Le guichet fonctionne ainsi. Vérifiez-le dans **poste** :
 
@@ -238,8 +247,9 @@ curl -sS -m 5 -X POST guichet:8000/reservations -d '{"client": "alice", "place":
 curl -s "guichet:8000/reservations?client=alice"
 ```
 
-Remplacez `perd-demande` par `lent`, puis par `perd-reponse`. Pour le mode
-`lent`, relancez la dernière commande **15 secondes plus tard**.
+Remplacez `perd-demande` par `lent`, puis par `perd-reponse`. Pour chaque
+mode, relancez la dernière commande **15 secondes plus tard**, avant de
+passer au mode suivant : c'est la dernière colonne du tableau.
 
 Complétez :
 
@@ -257,6 +267,8 @@ conclure Alice à partir du seul message affiché ?
 
 ## Étape 2 - Recommencer sans précaution *(8 min)*
 
+Dans **poste** :
+
 ```bash
 curl -s -X POST guichet:8000/admin/reset
 curl -s -X POST guichet:8000/admin/panne -d '{"mode": "perd-reponse"}'
@@ -272,7 +284,7 @@ probablement, et ce qui est vrai en réalité.
 ## Étape 3 - Recommencer avec une clé d'idempotence ★ *(10 min)*
 
 Le navigateur joint désormais à la demande une clé qui identifie
-**l'intention** d'Alice : `reservation-A7`.
+**l'intention** d'Alice : `reservation-A7`. Dans **poste** :
 
 ```bash
 curl -s -X POST guichet:8000/admin/reset
@@ -281,8 +293,13 @@ curl -sS -m 5 -X POST guichet:8000/reservations -H 'Idempotency-Key: reservation
 curl -s -X POST guichet:8000/reservations -H 'Idempotency-Key: reservation-A7' -d '{"client": "alice", "place": 42}'
 ```
 
-Envoyez ensuite la même clé avec la place 43 à la place de 42. Enfin, dans
-un terminal **Alice**, affichez ce que le serveur conserve :
+Envoyez ensuite la même clé, mais pour la place 43 :
+
+```bash
+curl -s -X POST guichet:8000/reservations -H 'Idempotency-Key: reservation-A7' -d '{"client": "alice", "place": 43}'
+```
+
+Enfin, dans **Alice**, affichez ce que le serveur conserve :
 
 ```sql
 TABLE idempotence;
@@ -297,6 +314,8 @@ pour la place 43, et deux phrases :
   minute ?
 
 ## Étape 4 - Réessayer pendant que la première demande attend *(5 min)*
+
+Dans **poste** :
 
 ```bash
 curl -s -X POST guichet:8000/admin/reset
@@ -359,7 +378,9 @@ curl -s -X POST guichet:8000/admin/reset
 curl -s -X POST guichet:8000/reservations -d '{"client": "alice", "place": 42}'
 ```
 
-Alice a reçu sa confirmation. Karim consulte la place sur B, et Alice sur A :
+Alice a reçu sa confirmation. Karim, lui, consulte la place sur la copie.
+Tapez cette lecture dans **B** (et non dans le terminal **Karim**, qui est
+branché sur A), puis dans **Alice** :
 
 ```sql
 SELECT titulaire FROM places WHERE concert = 'C17' AND place = 42;
@@ -371,7 +392,7 @@ Dans **Alice**, comparez ce que A a envoyé et ce que B a appliqué :
 SELECT application_name, sent_lsn, replay_lsn FROM pg_stat_replication;
 ```
 
-Relâchez B, puis relisez la place sur B :
+Toujours dans **B**, relâchez la copie, puis relisez la place :
 
 ```sql
 SELECT pg_wal_replay_resume();
@@ -459,9 +480,15 @@ Dans **hôte**, coupez B et notez l'heure :
 docker network disconnect ue1-interne pg-b
 ```
 
-Dans **B**, lisez la place 99. Dans **Alice**, relancez la requête sur
-`pg_stat_replication` tout de suite, puis toutes les 15 secondes, jusqu'à
-ce que la ligne de `pg_b` disparaisse.
+Dans **B**, lisez la place 99 :
+
+```sql
+SELECT titulaire FROM places WHERE concert = 'C17' AND place = 99;
+```
+
+Dans **Alice**, relancez la requête sur `pg_stat_replication` du TD 3 tout
+de suite, puis toutes les 15 secondes, jusqu'à ce que la ligne de `pg_b`
+disparaisse. Soyez patient : elle ne disparaît pas tout de suite.
 
 **Résultat attendu :** ce que répond B, et le temps mis par A pour
 constater que B ne répond plus. Pendant ce temps, A pouvait-il savoir si B
@@ -479,7 +506,7 @@ UPDATE places SET titulaire = 'alice' WHERE concert = 'C17' AND place = 99 AND t
 
 Attendez 30 secondes. Puis appuyez sur **Ctrl+C** : Alice abandonne.
 Recopiez **intégralement** le message affiché. Lisez ensuite la place 99
-dans **Alice**, puis dans **B**.
+dans **Alice**, puis dans **B**, avec le `SELECT` de l'étape 1.
 
 **Résultat attendu :** le message, les deux lectures, et votre réponse :
 la réservation d'Alice est-elle faite ? Est-elle confirmée ? Rapprochez
@@ -496,11 +523,13 @@ par la diapositive que vous avez observée.
 
 ### Étape 4 - Rebrancher et revenir en asynchrone *(3 min)*
 
+Dans **hôte** :
+
 ```bash
 docker network connect ue1-interne pg-b
 ```
 
-Au bout de quelques secondes, relisez la place 99 sur **B**. Puis, dans
+Au bout de quelques secondes, relisez la place 99 dans **B**. Puis, dans
 **Alice**, remettez la réplication asynchrone :
 
 ```sql
@@ -547,6 +576,8 @@ valeur écrite en dernier dans le temps réel, et l'explication de l'écart
 à partir des horodatages affichés.
 
 ### Étape 6 - Garder le conflit et laisser trancher ★ *(10 min)*
+
+Dans **poste** :
 
 ```bash
 curl -s -X POST cat-a:8000/admin/reset
@@ -597,9 +628,11 @@ par exemple `etcd-c`.
 
 ## Étape 2 - Isoler le leader *(12 min)*
 
+Dans **hôte** :
+
 ```bash
 docker network disconnect ue1-interne etcd-X
-docker compose exec etcd-X etcdctl put /concert/C17/place/42 karim
+docker compose exec etcd-X etcdctl put /concert/C17/place/42 bob
 docker compose exec etcd-X etcdctl get /concert/C17/place/42
 docker compose exec etcd-X etcdctl get /concert/C17/place/42 --consistency=s
 ```
@@ -623,6 +656,8 @@ ces lectures n'est **pas** linéarisable, et pourquoi ?
 
 ## Étape 3 - Rebrancher *(5 min)*
 
+Dans **hôte** :
+
 ```bash
 docker network connect ue1-interne etcd-X
 docker compose exec etcd-X etcdctl get /concert/C17/place/42
@@ -630,12 +665,12 @@ docker compose exec etcd-X etcdctl endpoint status --cluster -w table
 ```
 
 **Résultat attendu :** la valeur lue sur X et son nouveau rôle. L'écriture
-tentée sur X à l'étape 2 a-t-elle laissé une trace ?
+tentée sur X à l'étape 2 (`bob`) a-t-elle laissé une trace ?
 
 ## Étape 4 - Plus de majorité nulle part *(7 min)*
 
-Débranchez **les trois** nœuds, puis tentez une écriture sur deux d'entre
-eux :
+Dans **hôte**, débranchez **les trois** nœuds, puis tentez une écriture sur
+deux d'entre eux :
 
 ```bash
 docker network disconnect ue1-interne etcd-a
@@ -646,7 +681,14 @@ docker compose exec etcd-c etcdctl put /concert/C17/place/43 karim
 ```
 
 Rebranchez les trois (`docker network connect ue1-interne etcd-a`, puis
-`b`, puis `c`), attendez une dizaine de secondes, puis lisez la place 43.
+`b`, puis `c`), attendez une dizaine de secondes, puis lisez la place 43 :
+
+```bash
+docker compose exec etcd-a etcdctl get /concert/C17/place/43
+```
+
+`etcdctl get` n'affiche rien quand la clé n'existe pas : une sortie vide
+est une réponse, pas une panne.
 
 **Résultat attendu :** les réponses aux deux écritures, la valeur lue après
 reconnexion, et une phrase : pourquoi aucun nœud ne confirme alors que
