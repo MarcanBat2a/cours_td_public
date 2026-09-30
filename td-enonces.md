@@ -135,9 +135,14 @@ curl -s -X POST guichet:8000/admin/reset
 ```
 
 ## Étape 2 - Lire, puis écrire *(8 min)*
+Ouvrez deux terminaux sur votre machine et lancez dans chacun la même commande (l'un sera Alice, l'autre Karim) :
+```bash 
+cd manip && docker compose exec pg-a psql
+```
 
 Tapez les quatre commandes **dans cet ordre**, en changeant de terminal à
 chaque ligne :
+
 
 | Ordre | Terminal | Commande |
 | --- | --- | --- |
