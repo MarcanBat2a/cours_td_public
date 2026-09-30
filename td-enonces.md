@@ -3,9 +3,6 @@
 **UE 1 - Persistance et systèmes distribués · Chapitre 1**
 Marcu-Andria Battesti · Bachelor CLIC · 2026-2027
 
-Six TD en une séance de 3 h 30, pause comprise. Le travail est **individuel**.
-Vous n'écrivez pas de programme : vous lancez des machines, vous provoquez
-des pannes et vous notez ce que vous observez.
 
 Chaque étape se termine par un paragraphe **Résultat attendu** : c'est ce
 que vous présentez à la correction. Notez vos réponses dans un fichier
@@ -21,17 +18,13 @@ petite billetterie web.
 ## Avant la séance : préparer Docker
 
 Installez [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-et lancez-le. Puis, **chez vous**, parce que le premier téléchargement pèse
-environ 400 Mo :
+et lancez-le. 
 
 ```bash
 cd manip
 docker compose build
 docker compose pull
 ```
-
-Aucune de ces deux commandes ne doit afficher d'erreur. Sinon, venez
-avec le message d'erreur : on le règle en début de séance.
 
 ## Le décor : neuf machines
 
